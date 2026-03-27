@@ -21,7 +21,6 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -58,11 +57,11 @@
     opacity: 0.4;
   }
 
-  /* NAV */
+  /* ── NAV ── */
   nav {
     position: fixed;
     top: 0; left: 0; right: 0;
-    z-index: 100;
+    z-index: 500;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -71,7 +70,7 @@
     transition: border-color 0.3s, background 0.3s;
   }
   nav.scrolled {
-    background: rgba(10,10,10,0.9);
+    background: rgba(10,10,10,0.92);
     backdrop-filter: blur(12px);
     border-color: var(--border);
   }
@@ -81,6 +80,38 @@
     letter-spacing: 4px;
     color: var(--yellow);
   }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* Hamburger */
+  .nav-menu-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: none;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    transition: border-color 0.2s;
+  }
+  .nav-menu-btn:hover { border-color: var(--yellow); }
+  .nav-menu-btn span {
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--text);
+    transition: transform 0.3s, opacity 0.3s, background 0.2s;
+    transform-origin: center;
+  }
+  .nav-menu-btn:hover span { background: var(--yellow); }
+  .nav-menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-menu-btn.open span:nth-child(2) { opacity: 0; }
+  .nav-menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
   .nav-cta {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -94,7 +125,74 @@
   }
   .nav-cta:hover { opacity: 0.85; }
 
-  /* HERO */
+  /* Drawer menu */
+  .nav-drawer {
+    position: fixed;
+    top: 0; right: 0;
+    width: 340px;
+    height: 100vh;
+    background: var(--off-black);
+    border-left: 1px solid var(--border);
+    z-index: 490;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 100px 48px 48px;
+    gap: 0;
+  }
+  .nav-drawer.open { transform: translateX(0); }
+
+  .drawer-item {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+    position: relative;
+  }
+  .drawer-item::after {
+    content: '→';
+    position: absolute;
+    right: 0;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.2s, transform 0.2s;
+    font-size: 24px;
+    color: var(--yellow);
+  }
+  .drawer-item:hover { color: var(--text); }
+  .drawer-item:hover::after { opacity: 1; transform: translateX(0); }
+  .drawer-item:last-child { border-bottom: none; }
+
+  .drawer-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Overlay */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 480;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+  /* ── HERO ── */
   .hero {
     min-height: 100vh;
     display: grid;
@@ -102,7 +200,6 @@
     position: relative;
     overflow: hidden;
   }
-
   .hero-left {
     padding: 160px 48px 80px;
     display: flex;
@@ -111,7 +208,6 @@
     position: relative;
     z-index: 2;
   }
-
   .hero-tag {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
@@ -122,7 +218,6 @@
     opacity: 0;
     animation: fadeUp 0.6s 0.2s forwards;
   }
-
   .hero-headline {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(72px, 8vw, 120px);
@@ -132,9 +227,7 @@
     opacity: 0;
     animation: fadeUp 0.6s 0.4s forwards;
   }
-
   .hero-headline .accent { color: var(--yellow); }
-
   .hero-body {
     font-size: 17px;
     line-height: 1.7;
@@ -144,9 +237,7 @@
     opacity: 0;
     animation: fadeUp 0.6s 0.6s forwards;
   }
-
   .hero-body strong { color: var(--text); font-weight: 500; }
-
   .hero-actions {
     display: flex;
     gap: 16px;
@@ -154,7 +245,6 @@
     opacity: 0;
     animation: fadeUp 0.6s 0.8s forwards;
   }
-
   .btn-primary {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -168,11 +258,7 @@
     transition: transform 0.2s, box-shadow 0.2s;
     display: inline-block;
   }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(255,199,25,0.3);
-  }
-
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,199,25,0.3); }
   .btn-ghost {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -186,7 +272,6 @@
   }
   .btn-ghost:hover { color: var(--text); border-color: var(--text); }
 
-  /* Hero right — visual */
   .hero-right {
     position: relative;
     display: flex;
@@ -194,22 +279,18 @@
     justify-content: center;
     overflow: hidden;
   }
-
   .hero-right::before {
     content: '';
     position: absolute;
     inset: 0;
     background: radial-gradient(ellipse at center, rgba(255,199,25,0.06) 0%, transparent 70%);
   }
-
   .threat-visual {
     position: relative;
-    width: 360px;
-    height: 360px;
+    width: 360px; height: 360px;
     opacity: 0;
     animation: fadeIn 1s 1s forwards;
   }
-
   .threat-ring {
     position: absolute;
     border-radius: 50%;
@@ -220,7 +301,6 @@
   .threat-ring:nth-child(2) { inset: 40px; border-color: rgba(255,199,25,0.15); animation-delay: 0.5s; }
   .threat-ring:nth-child(3) { inset: 80px; border-color: rgba(255,199,25,0.25); animation-delay: 1s; }
   .threat-ring:nth-child(4) { inset: 120px; border-color: rgba(255,199,25,0.4); animation-delay: 1.5s; }
-
   .threat-center {
     position: absolute;
     inset: 150px;
@@ -231,9 +311,7 @@
     justify-content: center;
     box-shadow: 0 0 60px rgba(255,199,25,0.4);
   }
-
   .threat-center svg { width: 28px; height: 28px; }
-
   .threat-dot {
     position: absolute;
     width: 8px; height: 8px;
@@ -244,8 +322,6 @@
   .threat-dot:nth-child(6) { animation-delay: -2s; }
   .threat-dot:nth-child(7) { animation-delay: -4s; width: 5px; height: 5px; background: rgba(255,199,25,0.5); animation-duration: 12s; }
   .threat-dot:nth-child(8) { animation-delay: -6s; width: 6px; height: 6px; background: rgba(255,199,25,0.7); animation-duration: 6s; }
-
-  /* Floating code snippets */
   .code-float {
     position: absolute;
     font-family: 'DM Mono', monospace;
@@ -257,18 +333,15 @@
   .code-float:nth-child(9)  { top: 15%; left: -20px; animation-delay: 0s; }
   .code-float:nth-child(10) { top: 70%; right: -10px; animation-delay: 2s; }
   .code-float:nth-child(11) { bottom: 20%; left: 10px; animation-delay: 4s; }
-
-  /* Diagonal line */
   .hero::after {
     content: '';
     position: absolute;
-    top: 0; bottom: 0;
-    left: 50%;
+    top: 0; bottom: 0; left: 50%;
     width: 1px;
     background: linear-gradient(to bottom, transparent, var(--border) 30%, var(--border) 70%, transparent);
   }
 
-  /* TICKER */
+  /* ── TICKER ── */
   .ticker {
     background: var(--yellow);
     padding: 14px 0;
@@ -291,13 +364,12 @@
   }
   .ticker-sep { color: rgba(0,0,0,0.3); }
 
-  /* PROBLEM SECTION */
+  /* ── PROBLEM ── */
   .problem {
     padding: 140px 48px;
     max-width: 1200px;
     margin: 0 auto;
   }
-
   .section-label {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
@@ -306,25 +378,20 @@
     color: var(--yellow);
     margin-bottom: 24px;
   }
-
   .problem-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 80px;
     align-items: start;
   }
-
   .problem-headline {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(48px, 5vw, 72px);
     line-height: 0.95;
     letter-spacing: 1px;
   }
-
   .problem-headline .accent { color: var(--yellow); }
-
   .problem-right { padding-top: 8px; }
-
   .stat-block {
     border-left: 3px solid var(--yellow);
     padding-left: 28px;
@@ -337,26 +404,270 @@
     line-height: 1;
     margin-bottom: 8px;
   }
-  .stat-label {
-    font-size: 15px;
-    color: #888;
-    line-height: 1.6;
-  }
+  .stat-label { font-size: 15px; color: #888; line-height: 1.6; }
   .stat-label strong { color: var(--text); font-weight: 500; }
 
-  /* WHAT YOU GET */
+  /* ── BRANDING SECTION (NEW) ── */
+  .branding {
+    background: var(--off-black);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 140px 48px;
+  }
+  .branding-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .branding-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 96px;
+  }
+  .branding-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 5vw, 80px);
+    line-height: 0.93;
+    letter-spacing: 1px;
+  }
+  .branding-headline .accent { color: var(--yellow); }
+  .branding-statement {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #888;
+  }
+  .branding-statement strong { color: var(--text); font-weight: 500; }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+  .pillar {
+    background: var(--off-black);
+    padding: 48px 36px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .pillar:hover { background: var(--mid); }
+  .pillar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--yellow);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .pillar:hover::after { transform: scaleX(1); }
+
+  .pillar-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    color: var(--yellow);
+    opacity: 0.15;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .pillar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .pillar-body {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+  }
+
+  /* ── WHY AI CAN'T DO THIS (NEW) ── */
+  .why-ai {
+    padding: 140px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .why-ai-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+    margin-bottom: 80px;
+  }
+  .why-ai-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 5vw, 80px);
+    line-height: 0.93;
+    letter-spacing: 1px;
+  }
+  .why-ai-headline .accent { color: var(--yellow); }
+  .why-ai-intro {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #777;
+  }
+  .why-ai-intro strong { color: var(--text); font-weight: 500; }
+
+  /* Accordion cards */
+  .accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 64px;
+  }
+  .accordion-item {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .accordion-item.active { border-color: rgba(255,199,25,0.25); }
+  .accordion-trigger {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 32px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: none;
+    text-align: left;
+    gap: 24px;
+  }
+  .accordion-trigger:hover .accordion-label { color: var(--text); }
+  .accordion-left { display: flex; align-items: center; gap: 24px; }
+  .accordion-icon {
+    width: 36px; height: 36px;
+    background: var(--yellow-dim);
+    border: 1px solid rgba(255,199,25,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .accordion-icon svg { width: 16px; height: 16px; stroke: var(--yellow); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .accordion-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: #aaa;
+    transition: color 0.2s;
+  }
+  .accordion-item.active .accordion-label { color: var(--text); }
+  .accordion-chevron {
+    width: 20px; height: 20px;
+    stroke: var(--muted);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
+    transition: transform 0.3s, stroke 0.2s;
+  }
+  .accordion-item.active .accordion-chevron { transform: rotate(180deg); stroke: var(--yellow); }
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+  }
+  .accordion-item.active .accordion-body { max-height: 400px; }
+  .accordion-content {
+    padding: 0 36px 36px 96px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .accordion-col-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .accordion-col-label.neg { color: #555; }
+  .accordion-col-label.pos { color: var(--yellow); }
+  .accordion-col-text {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #666;
+  }
+  .accordion-col-text.pos { color: #999; }
+
+  /* Comparison strip */
+  .comparison-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin-bottom: 64px;
+  }
+  .comp-cell {
+    background: var(--dark);
+    padding: 32px 28px;
+  }
+  .comp-cell.header { background: var(--mid); padding: 20px 28px; }
+  .comp-aspect {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .comp-col-head {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .comp-col-head.ai { color: #555; }
+  .comp-col-head.cnrco { color: var(--yellow); }
+  .comp-val {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+  }
+  .comp-val.cnrco { color: #999; }
+  .comp-val strong { color: var(--text); font-weight: 500; }
+
+  .why-ai-cta {
+    text-align: center;
+    padding: 64px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .why-ai-cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--yellow);
+  }
+  .why-ai-cta-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .why-ai-cta-sub {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 32px;
+  }
+
+  /* ── OFFER ── */
   .offer {
     background: var(--dark);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     padding: 140px 48px;
   }
-
-  .offer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
+  .offer-inner { max-width: 1200px; margin: 0 auto; }
   .offer-header {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -364,7 +675,6 @@
     margin-bottom: 80px;
     align-items: end;
   }
-
   .offer-headline {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(48px, 5vw, 72px);
@@ -372,21 +682,14 @@
     letter-spacing: 1px;
   }
   .offer-headline .accent { color: var(--yellow); }
-
-  .offer-desc {
-    font-size: 17px;
-    line-height: 1.8;
-    color: #888;
-  }
+  .offer-desc { font-size: 17px; line-height: 1.8; color: #888; }
   .offer-desc strong { color: var(--text); font-weight: 500; }
-
   .features-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2px;
     background: var(--border);
   }
-
   .feature-card {
     background: var(--dark);
     padding: 48px 40px;
@@ -406,7 +709,6 @@
     transition: transform 0.3s;
   }
   .feature-card:hover::before { transform: scaleX(1); }
-
   .feature-icon {
     width: 44px; height: 44px;
     background: var(--yellow-dim);
@@ -417,28 +719,21 @@
     margin-bottom: 28px;
     font-size: 20px;
   }
-
   .feature-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 24px;
     letter-spacing: 1px;
     margin-bottom: 16px;
   }
+  .feature-body { font-size: 14px; line-height: 1.8; color: #777; }
 
-  .feature-body {
-    font-size: 14px;
-    line-height: 1.8;
-    color: #777;
-  }
-
-  /* PRICE */
+  /* ── PRICE ── */
   .price-section {
     padding: 140px 48px;
     max-width: 900px;
     margin: 0 auto;
     text-align: center;
   }
-
   .price-headline {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(48px, 5vw, 80px);
@@ -446,13 +741,7 @@
     margin-bottom: 16px;
   }
   .price-headline .accent { color: var(--yellow); }
-
-  .price-sub {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 64px;
-  }
-
+  .price-sub { font-size: 16px; color: #666; margin-bottom: 64px; }
   .price-card {
     background: var(--dark);
     border: 1px solid var(--border);
@@ -467,7 +756,6 @@
     height: 3px;
     background: var(--yellow);
   }
-
   .price-amount {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 96px;
@@ -475,7 +763,6 @@
     line-height: 1;
     margin-bottom: 8px;
   }
-
   .price-note {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
@@ -484,7 +771,6 @@
     text-transform: uppercase;
     margin-bottom: 48px;
   }
-
   .price-includes {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -492,7 +778,6 @@
     text-align: left;
     margin-bottom: 48px;
   }
-
   .price-item {
     display: flex;
     align-items: center;
@@ -500,14 +785,7 @@
     font-size: 14px;
     color: #999;
   }
-
-  .price-item::before {
-    content: '→';
-    color: var(--yellow);
-    font-family: 'DM Mono', monospace;
-    flex-shrink: 0;
-  }
-
+  .price-item::before { content: '→'; color: var(--yellow); font-family: 'DM Mono', monospace; flex-shrink: 0; }
   .price-cta {
     display: inline-block;
     background: var(--yellow);
@@ -521,12 +799,9 @@
     text-decoration: none;
     transition: transform 0.2s, box-shadow 0.2s;
   }
-  .price-cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 48px rgba(255,199,25,0.35);
-  }
+  .price-cta:hover { transform: translateY(-3px); box-shadow: 0 16px 48px rgba(255,199,25,0.35); }
 
-  /* WHO */
+  /* ── WHO ── */
   .who {
     background: var(--dark);
     border-top: 1px solid var(--border);
@@ -547,12 +822,7 @@
     letter-spacing: 1px;
   }
   .who-headline .accent { color: var(--yellow); }
-
-  .who-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
+  .who-list { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .who-item {
     display: flex;
     align-items: flex-start;
@@ -570,14 +840,10 @@
     line-height: 1;
     flex-shrink: 0;
   }
-  .who-text {
-    font-size: 14px;
-    line-height: 1.7;
-    color: #888;
-  }
+  .who-text { font-size: 14px; line-height: 1.7; color: #888; }
   .who-text strong { color: var(--text); font-weight: 500; display: block; margin-bottom: 4px; }
 
-  /* CONTACT */
+  /* ── CONTACT ── */
   .contact {
     padding: 140px 48px;
     max-width: 800px;
@@ -592,24 +858,10 @@
     margin-bottom: 24px;
   }
   .contact-headline .accent { color: var(--yellow); }
-  .contact-sub {
-    font-size: 17px;
-    color: #666;
-    line-height: 1.7;
-    margin-bottom: 56px;
-  }
-
-  .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    text-align: left;
-  }
-
+  .contact-sub { font-size: 17px; color: #666; line-height: 1.7; margin-bottom: 56px; }
+  .contact-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
   .form-group { display: flex; flex-direction: column; gap: 8px; }
-
   .form-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -617,7 +869,6 @@
     text-transform: uppercase;
     color: var(--muted);
   }
-
   .form-input, .form-textarea {
     background: var(--dark);
     border: 1px solid var(--border);
@@ -631,7 +882,6 @@
   }
   .form-input:focus, .form-textarea:focus { border-color: var(--yellow); }
   .form-textarea { resize: none; height: 140px; }
-
   .form-submit {
     background: var(--yellow);
     color: var(--black);
@@ -646,12 +896,9 @@
     transition: transform 0.2s, box-shadow 0.2s;
     margin-top: 8px;
   }
-  .form-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(255,199,25,0.3);
-  }
+  .form-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,199,25,0.3); }
 
-  /* FOOTER */
+  /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--border);
     padding: 40px 48px;
@@ -672,7 +919,7 @@
     letter-spacing: 1px;
   }
 
-  /* ANIMATIONS */
+  /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -704,27 +951,27 @@
     transform: translateY(32px);
     transition: opacity 0.7s, transform 0.7s;
   }
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  /* RESPONSIVE */
+  /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     nav { padding: 20px 24px; }
+    .nav-drawer { width: 100%; }
     .hero { grid-template-columns: 1fr; }
     .hero::after { display: none; }
     .hero-right { display: none; }
     .hero-left { padding: 120px 24px 80px; }
-    .problem, .price-section, .contact { padding: 80px 24px; }
-    .problem-grid, .offer-header, .who-inner { grid-template-columns: 1fr; gap: 40px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .price-includes, .who-list { grid-template-columns: 1fr; }
+    .problem, .price-section, .contact, .why-ai { padding: 80px 24px; }
+    .problem-grid, .offer-header, .who-inner, .branding-header, .why-ai-header { grid-template-columns: 1fr; gap: 40px; }
+    .features-grid, .pillars-grid, .comparison-strip { grid-template-columns: 1fr; }
+    .price-includes, .who-list, .accordion-content { grid-template-columns: 1fr; }
     .form-row { grid-template-columns: 1fr; }
-    .offer, .who { padding: 80px 24px; }
+    .offer, .who, .branding { padding: 80px 24px; }
     footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
     body { cursor: auto; }
     .cursor { display: none; }
+    .accordion-content { padding: 0 24px 28px; }
+    .accordion-trigger { padding: 24px; }
   }
 </style>
 </head>
@@ -732,10 +979,29 @@
 
 <div class="cursor" id="cursor"></div>
 
+<!-- Drawer overlay -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- NAV DRAWER -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="#offer" class="drawer-item" onclick="closeDrawer()">Services</a>
+  <a href="#branding" class="drawer-item" onclick="closeDrawer()">About CNRCO</a>
+  <a href="#why-ai" class="drawer-item" onclick="closeDrawer()">Why CNRCO</a>
+  <a href="#price" class="drawer-item" onclick="closeDrawer()">Pricing</a>
+  <a href="#who" class="drawer-item" onclick="closeDrawer()">Who we help</a>
+  <a href="#contact" class="drawer-item" onclick="closeDrawer()">Contact</a>
+  <div class="drawer-tag">cnrco · Web builds. Locked tight.</div>
+</div>
+
 <!-- NAV -->
 <nav id="nav">
   <div class="nav-logo">cnrco</div>
-  <a href="#contact" class="nav-cta">Get a quote</a>
+  <div class="nav-right">
+    <button class="nav-menu-btn" id="menuBtn" onclick="toggleDrawer()" aria-label="Open navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="#contact" class="nav-cta">Get a quote</a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -819,6 +1085,221 @@
         <div class="stat-label">is what most small business websites spend on security. Which is exactly why they get hit. <strong>One incident costs way more than prevention.</strong></div>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- BRANDING SECTION -->
+<section class="branding" id="branding">
+  <div class="branding-inner">
+    <div class="branding-header">
+      <div>
+        <p class="section-label reveal">What CNRCO is</p>
+        <h2 class="branding-headline reveal">
+          Security and<br>
+          design.<br>
+          <span class="accent">Both.</span>
+        </h2>
+      </div>
+      <p class="branding-statement reveal">
+        Most web designers don't think about security. Most security consultants don't build websites. cnrco sits at the intersection — an independent agency where <strong>every build is hardened by default</strong>, and every security assessment is grounded in how real sites actually work. We serve businesses that take their digital presence seriously.
+      </p>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar reveal">
+        <div class="pillar-num">01</div>
+        <div class="pillar-title">Security First</div>
+        <p class="pillar-body">Security isn't a feature added at the end — it's a design principle. Every structural and technical decision is made with protection in mind from the first line of code.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-num">02</div>
+        <div class="pillar-title">Custom Solutions</div>
+        <p class="pillar-body">No templates. No one-size-fits-all packages beyond the baseline. Your business has a specific threat model and a specific brand — both deserve a tailored response.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-num">03</div>
+        <div class="pillar-title">Human Accountability</div>
+        <p class="pillar-body">There is a real person behind every recommendation, every sign-off, every report. That person is reachable, responsible, and invested in your outcome — not a pipeline.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pillar-num">04</div>
+        <div class="pillar-title">Full Transparency</div>
+        <p class="pillar-body">You get plain-language explanations of every decision made. No black boxes. No jargon to obscure gaps. You understand your own site when we're done.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY AI CAN'T DO THIS -->
+<section class="why-ai" id="why-ai">
+  <div class="why-ai-header">
+    <div>
+      <p class="section-label reveal">The honest comparison</p>
+      <h2 class="why-ai-headline reveal">
+        What AI<br>
+        can't<br>
+        <span class="accent">actually do.</span>
+      </h2>
+    </div>
+    <p class="why-ai-intro reveal">
+      AI tools are genuinely useful for generating code and content at scale. We use them ourselves. But <strong>security requires judgment</strong> — and judgment requires context, accountability, and a person who can be held responsible for the outcome. Here's where the gap shows.
+    </p>
+  </div>
+
+  <div class="accordion reveal">
+
+    <div class="accordion-item" id="acc-1">
+      <button class="accordion-trigger" onclick="toggleAccordion('acc-1')">
+        <div class="accordion-left">
+          <div class="accordion-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <span class="accordion-label">Accountability — when things go wrong</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div>
+            <div class="accordion-col-label neg">AI-generated security</div>
+            <p class="accordion-col-text">Generates output based on patterns. Cannot be held responsible for a breach. No liability, no recourse, no one to call. You signed off — so you carry the risk.</p>
+          </div>
+          <div>
+            <div class="accordion-col-label pos">CNRCO</div>
+            <p class="accordion-col-text pos">A named professional signs off on every assessment and configuration. There is a real accountability trail — the kind that satisfies insurers, clients, and your own peace of mind.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item" id="acc-2">
+      <button class="accordion-trigger" onclick="toggleAccordion('acc-2')">
+        <div class="accordion-left">
+          <div class="accordion-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+          </div>
+          <span class="accordion-label">Context — your specific risks, not average ones</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div>
+            <div class="accordion-col-label neg">AI-generated security</div>
+            <p class="accordion-col-text">Applies generic best practices from training data. A healthcare booking site, a freelancer's portfolio, and a local bakery all get roughly the same advice.</p>
+          </div>
+          <div>
+            <div class="accordion-col-label pos">CNRCO</div>
+            <p class="accordion-col-text pos">Discovery-first approach. Your business model, your data type, your compliance requirements — GDPR exposure, payment processing, user accounts — all factor into what gets hardened and how.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item" id="acc-3">
+      <button class="accordion-trigger" onclick="toggleAccordion('acc-3')">
+        <div class="accordion-left">
+          <div class="accordion-icon">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <span class="accordion-label">Threat awareness — beyond the training data</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div>
+            <div class="accordion-col-label neg">AI-generated security</div>
+            <p class="accordion-col-text">Trained on historical data with a cutoff. Emerging attack patterns, zero-days, and novel social engineering vectors aren't in that dataset — and won't be for a while.</p>
+          </div>
+          <div>
+            <div class="accordion-col-label pos">CNRCO</div>
+            <p class="accordion-col-text pos">Active awareness of the current threat landscape. Pattern recognition from real-world study, not a static snapshot. New attack surfaces are on the radar before they become incidents.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item" id="acc-4">
+      <button class="accordion-trigger" onclick="toggleAccordion('acc-4')">
+        <div class="accordion-left">
+          <div class="accordion-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <span class="accordion-label">Design trust — looks secure AND is secure</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div>
+            <div class="accordion-col-label neg">AI-generated security</div>
+            <p class="accordion-col-text">Can produce visually coherent sites, but has no understanding of how a site's design communicates trustworthiness to a human visitor — or a potential customer.</p>
+          </div>
+          <div>
+            <div class="accordion-col-label pos">CNRCO</div>
+            <p class="accordion-col-text pos">A site that signals credibility through design isn't vanity — it's conversion and retention. CNRCO understands both UX psychology and security posture, and builds for both simultaneously.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item" id="acc-5">
+      <button class="accordion-trigger" onclick="toggleAccordion('acc-5')">
+        <div class="accordion-left">
+          <div class="accordion-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span class="accordion-label">Continuity — security doesn't end at launch</span>
+        </div>
+        <svg class="accordion-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-content">
+          <div>
+            <div class="accordion-col-label neg">AI-generated security</div>
+            <p class="accordion-col-text">Delivers a one-time output. Cannot monitor live systems, respond to incidents, flag new vulnerabilities as they emerge, or adapt as your site evolves.</p>
+          </div>
+          <div>
+            <div class="accordion-col-label pos">CNRCO</div>
+            <p class="accordion-col-text pos">30-day post-launch support included as standard. Available to advise, update, and respond — because what's secure today may need attention tomorrow. Security is an ongoing posture, not a deliverable.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Compact comparison strip -->
+  <div class="comparison-strip reveal">
+    <div class="comp-cell header"><span class="comp-aspect">Aspect</span></div>
+    <div class="comp-cell header"><span class="comp-col-head ai">AI solution</span></div>
+    <div class="comp-cell header"><span class="comp-col-head cnrco">CNRCO</span></div>
+
+    <div class="comp-cell"><span class="comp-aspect">Accountability</span></div>
+    <div class="comp-cell"><span class="comp-val">None</span></div>
+    <div class="comp-cell"><span class="comp-val cnrco"><strong>Full professional responsibility</strong></span></div>
+
+    <div class="comp-cell"><span class="comp-aspect">Context</span></div>
+    <div class="comp-cell"><span class="comp-val">Generic patterns</span></div>
+    <div class="comp-cell"><span class="comp-val cnrco"><strong>Client-specific discovery</strong></span></div>
+
+    <div class="comp-cell"><span class="comp-aspect">Threat intel</span></div>
+    <div class="comp-cell"><span class="comp-val">Static training data</span></div>
+    <div class="comp-cell"><span class="comp-val cnrco"><strong>Current, active awareness</strong></span></div>
+
+    <div class="comp-cell"><span class="comp-aspect">Compliance proof</span></div>
+    <div class="comp-cell"><span class="comp-val">No documentation</span></div>
+    <div class="comp-cell"><span class="comp-val cnrco"><strong>Auditable decision trail</strong></span></div>
+
+    <div class="comp-cell"><span class="comp-aspect">After launch</span></div>
+    <div class="comp-cell"><span class="comp-val">Nothing</span></div>
+    <div class="comp-cell"><span class="comp-val cnrco"><strong>30 days support included</strong></span></div>
+  </div>
+
+  <div class="why-ai-cta reveal">
+    <div class="why-ai-cta-text">Your security is too important for generic output.</div>
+    <p class="why-ai-cta-sub">Get an assessment from a person who is accountable for the result.</p>
+    <a href="#contact" class="btn-primary">Get a custom assessment</a>
   </div>
 </section>
 
@@ -906,7 +1387,7 @@
       </div>
       <div class="who-item reveal">
         <div class="who-num">02</div>
-        <div class="who-text"><strong>Clubs & orgs</strong> You need a professional presence without agency prices. MUN, sports clubs, student orgs.</div>
+        <div class="who-text"><strong>Clubs &amp; orgs</strong> You need a professional presence without agency prices. MUN, sports clubs, student orgs.</div>
       </div>
       <div class="who-item reveal">
         <div class="who-num">03</div>
@@ -961,7 +1442,7 @@
     cursor.style.left = e.clientX + 'px';
     cursor.style.top = e.clientY + 'px';
   });
-  document.querySelectorAll('a, button, .feature-card, .who-item').forEach(el => {
+  document.querySelectorAll('a, button, .feature-card, .who-item, .pillar, .accordion-trigger').forEach(el => {
     el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
     el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
   });
@@ -988,10 +1469,37 @@
   function handleSubmit(e) {
     e.preventDefault();
     const btn = e.target.querySelector('.form-submit');
-    btn.textContent = 'Sent ✓ — talk soon';
+    btn.textContent = 'Sent — talk soon';
     btn.style.background = '#2a2a2a';
     btn.style.color = '#FFC719';
     btn.disabled = true;
+  }
+
+  // Drawer
+  function toggleDrawer() {
+    const drawer = document.getElementById('navDrawer');
+    const overlay = document.getElementById('drawerOverlay');
+    const btn = document.getElementById('menuBtn');
+    const isOpen = drawer.classList.contains('open');
+    drawer.classList.toggle('open', !isOpen);
+    overlay.classList.toggle('open', !isOpen);
+    btn.classList.toggle('open', !isOpen);
+  }
+  function closeDrawer() {
+    document.getElementById('navDrawer').classList.remove('open');
+    document.getElementById('drawerOverlay').classList.remove('open');
+    document.getElementById('menuBtn').classList.remove('open');
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  // Accordion
+  function toggleAccordion(id) {
+    const item = document.getElementById(id);
+    const isActive = item.classList.contains('active');
+    // Close all
+    document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('active'));
+    // Open clicked (unless it was already open)
+    if (!isActive) item.classList.add('active');
   }
 </script>
 </body>
