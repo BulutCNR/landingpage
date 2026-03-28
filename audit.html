@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNRCO — Audit Methodology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #FFD400;
+    --gold-dim: rgba(255,212,0,0.09);
+    --gold-border: rgba(255,212,0,0.18);
+    --chartreuse: #CEFF1A;
+    --copper: #A57F60;
+    --white: #dde3ef;
+    --bg: #090c14;
+    --bg2: #0b0f1a;
+    --bg3: #0d1120;
+    --card: #0c1019;
+    --border: rgba(255,212,0,0.13);
+    --border-dim: rgba(255,255,255,0.05);
+    --text: #7a8499;
+    --text-mid: #a8b3c6;
+    --text-bright: #dde3ef;
+    --radius: 6px;
+    --radius-sm: 3px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.7; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.055) 3px, rgba(0,0,0,0.055) 4px);
+    pointer-events: none; z-index: 9999;
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(255,212,0,0.014) 1px, transparent 1px), linear-gradient(90deg, rgba(255,212,0,0.014) 1px, transparent 1px);
+    background-size: 72px 72px; pointer-events: none; z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: rgba(9,12,20,0.96); border-bottom: 1px solid var(--border-dim);
+    backdrop-filter: blur(10px); padding: 0 48px; height: 54px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 16px;
+    color: var(--gold); letter-spacing: 5px; text-decoration: none;
+  }
+  .nav-logo::after { content: '_'; animation: blink 1.4s step-end infinite; color: var(--text-mid); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .nav-back {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+    text-decoration: none; letter-spacing: 2px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px; transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold); }
+  .nav-back::before { content: '<'; color: var(--gold); opacity: 0.7; }
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px;
+    cursor: pointer; background: none; border: none; padding: 4px;
+  }
+  .hamburger span { width: 22px; height: 1px; background: var(--gold); display: block; transition: all 0.3s; }
+  .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .drawer {
+    position: fixed; top: 54px; left: 0; right: 0;
+    background: rgba(9,12,20,0.98); border-bottom: 1px solid var(--border);
+    z-index: 999; padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 2px;
+    transform: translateY(-100%); opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease; pointer-events: none;
+  }
+  .drawer.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+  .drawer a {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text);
+    text-decoration: none; letter-spacing: 1px; padding: 12px 0;
+    border-bottom: 1px solid var(--border-dim); transition: color 0.2s;
+  }
+  .drawer a:hover { color: var(--gold); }
+
+  /* PAGE HERO */
+  .page-hero {
+    position: relative; z-index: 1;
+    padding: 100px 60px 56px; border-bottom: 1px solid var(--border-dim); background: var(--bg2);
+  }
+  .breadcrumb {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+    letter-spacing: 1.5px; margin-bottom: 22px; display: flex; align-items: center; gap: 10px;
+  }
+  .breadcrumb a { color: var(--gold); text-decoration: none; opacity: 0.8; }
+  .breadcrumb a:hover { opacity: 1; }
+  .page-ascii {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: rgba(255,212,0,0.22); line-height: 1.2; margin-bottom: 24px;
+    white-space: pre; user-select: none;
+  }
+  .page-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(22px, 3.5vw, 40px); font-weight: 700;
+    color: var(--text-bright); letter-spacing: 1px; line-height: 1.1; margin-bottom: 14px;
+  }
+  .page-title em { font-style: normal; color: var(--gold); }
+  .page-desc {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text);
+    max-width: 580px; line-height: 1.85; letter-spacing: 0.3px; margin-bottom: 36px;
+  }
+  .page-meta { display: flex; gap: 32px; flex-wrap: wrap; }
+  .meta-item { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); letter-spacing: 1.5px; display: flex; flex-direction: column; gap: 4px; }
+  .meta-item strong { color: var(--gold); font-size: 13px; font-weight: 600; }
+
+  /* LAYOUT */
+  .audit-layout {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 54px);
+  }
+
+  /* TOC */
+  .toc {
+    position: sticky; top: 54px; height: calc(100vh - 54px);
+    overflow-y: auto; border-right: 1px solid var(--border-dim);
+    background: var(--card); padding: 28px 0;
+  }
+  .toc-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 2.5px;
+    color: var(--text); text-transform: uppercase; padding: 0 20px; margin-bottom: 14px;
+  }
+  .toc-item {
+    display: block; font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--text); text-decoration: none; padding: 9px 20px;
+    letter-spacing: 0.3px; border-left: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s, background 0.2s; line-height: 1.5;
+  }
+  .toc-item:hover { color: var(--gold); border-left-color: var(--gold-border); background: var(--gold-dim); }
+  .toc-item.active { color: var(--gold); border-left-color: var(--gold); }
+  .toc-group { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-dim); }
+  .toc-cta {
+    color: var(--gold) !important; opacity: 0.8;
+  }
+  .toc-cta:hover { opacity: 1; }
+
+  /* MAIN */
+  .audit-content { padding: 48px 56px; }
+
+  .audit-section { margin-bottom: 72px; scroll-margin-top: 72px; }
+  .audit-section-header {
+    display: flex; align-items: baseline; gap: 16px;
+    margin-bottom: 28px; padding-bottom: 14px; border-bottom: 1px solid var(--border-dim);
+  }
+  .audit-section-num {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    color: var(--gold); letter-spacing: 2.5px; flex-shrink: 0; opacity: 0.8;
+  }
+  .audit-section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(15px, 1.8vw, 20px); font-weight: 700;
+    color: var(--text-bright); letter-spacing: 0.5px;
+  }
+  .audit-section-title em { font-style: normal; color: var(--gold); }
+
+  /* SCOPE NOTE */
+  .scope-note {
+    background: var(--gold-dim); border: 1px solid var(--gold-border);
+    border-left: 2px solid var(--gold); border-radius: var(--radius);
+    padding: 18px 22px; margin-bottom: 32px;
+  }
+  .scope-note-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; opacity: 0.85;
+  }
+  .scope-note-text {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--text-mid); line-height: 1.75; letter-spacing: 0.2px;
+  }
+
+  /* TEST CARDS */
+  .test-category {
+    background: var(--card); border: 1px solid var(--border-dim);
+    border-radius: var(--radius); margin-bottom: 6px; overflow: hidden; transition: border-color 0.2s;
+  }
+  .test-category:hover { border-color: var(--gold-border); }
+  .test-category-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; cursor: pointer; user-select: none; gap: 12px;
+  }
+  .test-category-title {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--text-mid); letter-spacing: 0.5px; flex: 1;
+  }
+  .test-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 1.5px;
+    padding: 3px 7px; border-radius: var(--radius-sm); flex-shrink: 0; text-transform: uppercase;
+  }
+  .test-tag.passive { background: rgba(168,127,96,0.15); color: var(--copper); border: 1px solid rgba(168,127,96,0.2); }
+  .test-tag.active  { background: rgba(255,212,0,0.1); color: var(--gold); border: 1px solid var(--gold-border); }
+  .test-tag.manual  { background: rgba(206,255,26,0.08); color: #afd44d; border: 1px solid rgba(206,255,26,0.15); }
+  .test-tag.both    { background: rgba(255,255,255,0.04); color: var(--text-mid); border: 1px solid var(--border-dim); }
+  .test-toggle {
+    font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+    color: var(--gold); opacity: 0.5; flex-shrink: 0; transition: transform 0.25s, opacity 0.25s;
+  }
+  .test-category.open .test-toggle { transform: rotate(45deg); opacity: 0.9; }
+  .test-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .test-category.open .test-body { max-height: 700px; }
+  .test-body-inner { padding: 0 18px 18px; border-top: 1px solid var(--border-dim); }
+  .test-list { list-style: none; display: flex; flex-direction: column; gap: 7px; padding-top: 14px; }
+  .test-list li {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+    display: flex; align-items: baseline; gap: 10px; letter-spacing: 0.2px; line-height: 1.55;
+  }
+  .test-list li::before { content: '>'; color: var(--gold); flex-shrink: 0; opacity: 0.55; }
+  .test-desc {
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--text);
+    line-height: 1.75; padding-top: 12px; border-top: 1px solid var(--border-dim); margin-top: 12px;
+  }
+
+  /* INTRO PARA */
+  .section-intro {
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;
+    color: var(--text); line-height: 1.85; margin-bottom: 24px;
+  }
+
+  /* CVSS TABLE */
+  .cvss-table { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 11px; margin-bottom: 24px; }
+  .cvss-table th {
+    background: rgba(255,212,0,0.05); color: var(--gold); font-weight: 600;
+    letter-spacing: 1.5px; font-size: 9px; text-transform: uppercase;
+    padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-dim);
+  }
+  .cvss-table td { padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text); vertical-align: top; line-height: 1.5; }
+  .cvss-table tr:last-child td { border-bottom: none; }
+  .cvss-table tr:hover td { background: rgba(255,212,0,0.02); }
+  .s-crit { color: #c95555; font-weight: 600; }
+  .s-high { color: #c46e3d; font-weight: 600; }
+  .s-med  { color: var(--gold); font-weight: 600; opacity: 0.9; }
+  .s-low  { color: #6ea870; font-weight: 600; }
+  .s-info { color: var(--text); font-weight: 600; }
+
+  /* REPORT BLOCKS */
+  .report-block {
+    background: var(--card); border: 1px solid var(--border-dim);
+    border-radius: var(--radius); margin-bottom: 6px; overflow: hidden;
+  }
+  .report-block-header {
+    background: rgba(255,212,0,0.035); border-bottom: 1px solid var(--border-dim);
+    padding: 11px 18px; display: flex; align-items: center; gap: 12px;
+  }
+  .report-block-num { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--gold); letter-spacing: 2px; opacity: 0.8; }
+  .report-block-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text-mid); letter-spacing: 0.5px; }
+  .report-block-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 5px; }
+  .report-block-item {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+    display: flex; align-items: baseline; gap: 10px; letter-spacing: 0.2px;
+  }
+  .report-block-item::before { content: '-'; color: var(--gold); opacity: 0.55; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 6px; }
+  .timeline-item {
+    display: grid; grid-template-columns: 130px 1fr;
+    background: var(--card); border: 1px solid var(--border-dim); border-radius: var(--radius);
+  }
+  .timeline-when {
+    padding: 18px; border-right: 1px solid var(--border-dim);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .timeline-period { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--gold); }
+  .timeline-window { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); letter-spacing: 0.5px; }
+  .timeline-body { padding: 18px; }
+  .timeline-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; }
+  .timeline-desc { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; color: var(--text); line-height: 1.7; }
+
+  /* COMPLIANCE GRID */
+  .compliance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .compliance-cell {
+    background: var(--card); border: 1px solid var(--border-dim);
+    border-radius: var(--radius); padding: 22px; transition: border-color 0.2s;
+  }
+  .compliance-cell:hover { border-color: var(--gold-border); }
+  .compliance-standard { font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: 2px; margin-bottom: 4px; }
+  .compliance-full { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); letter-spacing: 0.5px; margin-bottom: 14px; }
+  .compliance-items { display: flex; flex-direction: column; gap: 6px; }
+  .compliance-item {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+    display: flex; align-items: baseline; gap: 8px; letter-spacing: 0.2px;
+  }
+  .compliance-item::before { content: '>'; color: var(--gold); opacity: 0.55; }
+
+  /* TOOLS */
+  .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .tool-cell {
+    background: var(--card); border: 1px solid var(--border-dim);
+    border-radius: var(--radius); padding: 16px 18px; transition: border-color 0.2s;
+  }
+  .tool-cell:hover { border-color: var(--gold-border); }
+  .tool-name { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--gold); margin-bottom: 5px; letter-spacing: 0.5px; opacity: 0.9; }
+  .tool-use { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); letter-spacing: 0.2px; line-height: 1.6; }
+
+  /* CTA */
+  .audit-cta {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 36px; text-align: center;
+    position: relative; overflow: hidden; margin-top: 56px;
+  }
+  .audit-cta::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--gold); opacity: 0.5; }
+  .audit-cta-ascii {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    color: rgba(255,212,0,0.18); line-height: 1.2; margin-bottom: 20px;
+    white-space: pre; user-select: none;
+  }
+  .audit-cta-title { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text-bright); letter-spacing: 1px; margin-bottom: 10px; }
+  .audit-cta-desc { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text); letter-spacing: 0.3px; margin-bottom: 24px; line-height: 1.75; }
+  .btn-primary {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase; padding: 13px 32px;
+    background: var(--gold); color: #090c14; border: none; border-radius: var(--radius-sm);
+    cursor: pointer; text-decoration: none; display: inline-block; transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  /* FOOTER */
+  .audit-footer {
+    position: relative; z-index: 1; background: var(--card);
+    border-top: 1px solid var(--border-dim); padding: 28px 56px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-brand { font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: 5px; }
+  .footer-links { display: flex; gap: 22px; list-style: none; flex-wrap: wrap; }
+  .footer-links a { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text); text-decoration: none; letter-spacing: 0.5px; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-sig { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--chartreuse); letter-spacing: 2px; opacity: 0.7; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-back { display: none; }
+    .hamburger { display: flex; }
+    .audit-layout { grid-template-columns: 1fr; }
+    .toc { display: none; }
+    .audit-content { padding: 28px 20px; }
+    .page-hero { padding: 80px 20px 40px; }
+    .compliance-grid { grid-template-columns: 1fr; }
+    .tools-grid { grid-template-columns: 1fr 1fr; }
+    .timeline-item { grid-template-columns: 1fr; }
+    .timeline-when { border-right: none; border-bottom: 1px solid var(--border-dim); }
+    .audit-footer { padding: 24px 20px; }
+    .page-meta { flex-direction: column; gap: 14px; }
+    .page-ascii { font-size: 8px; }
+  }
+  @media (max-width: 540px) {
+    .tools-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">CNRCO</a>
+  <a href="index.html" class="nav-back">Back to main site</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="drawer" id="drawer">
+  <a href="index.html" onclick="closeDrawer()">Back to main site</a>
+  <a href="#recon" onclick="closeDrawer()">Phase 01 — Reconnaissance</a>
+  <a href="#vuln" onclick="closeDrawer()">Phase 02 — Vulnerability Assessment</a>
+  <a href="#risk" onclick="closeDrawer()">Phase 03 — Risk Scoring</a>
+  <a href="#report" onclick="closeDrawer()">Report Structure</a>
+  <a href="#compliance" onclick="closeDrawer()">Compliance Mapping</a>
+  <a href="#tools" onclick="closeDrawer()">Tools Used</a>
+  <a href="index.html#contact" onclick="closeDrawer()">Request audit</a>
+</div>
+
+<div class="page-hero">
+  <p class="breadcrumb"><a href="index.html">CNRCO</a> <span>/</span> <span>Audit Methodology</span></p>
+<pre class="page-ascii">  .-------.-------.-------.
+  | PHASE | PHASE | PHASE |
+  |  01   |  02   |  03   |
+  | RECON | VULN  | RISK  |
+  '-------'-------'-------'</pre>
+  <h1 class="page-title">Full audit <em>methodology</em></h1>
+  <p class="page-desc">Phase-by-phase breakdown of what CNRCO tests, how vulnerabilities are scored and prioritized, what the report contains, and how findings map to compliance frameworks.</p>
+  <div class="page-meta">
+    <div class="meta-item"><strong>3</strong>Assessment phases</div>
+    <div class="meta-item"><strong>CVSS 3.1</strong>Scoring standard</div>
+    <div class="meta-item"><strong>20–40h</strong>Typical engagement</div>
+    <div class="meta-item"><strong>4</strong>Compliance standards</div>
+  </div>
+</div>
+
+<div class="audit-layout">
+  <aside class="toc">
+    <p class="toc-label">Contents</p>
+    <a href="#recon" class="toc-item">01 — Reconnaissance</a>
+    <a href="#vuln" class="toc-item">02 — Vulnerability Assessment</a>
+    <a href="#risk" class="toc-item">03 — Risk Scoring</a>
+    <div class="toc-group">
+      <a href="#report" class="toc-item">Report Structure</a>
+      <a href="#compliance" class="toc-item">Compliance Mapping</a>
+      <a href="#tools" class="toc-item">Tools Used</a>
+      <a href="#remediation" class="toc-item">Remediation Timeline</a>
+    </div>
+    <div class="toc-group">
+      <a href="index.html#contact" class="toc-item toc-cta">Request an audit</a>
+    </div>
+  </aside>
+
+  <main class="audit-content">
+
+    <div class="scope-note">
+      <p class="scope-note-label">Engagement scope</p>
+      <p class="scope-note-text">The methodology below reflects the full scope of a standard CNRCO engagement. Not every item applies to every system — scope is defined during the free scoping call and documented in a written agreement before work begins. Testing is performed only against systems the client owns and has authorized.</p>
+    </div>
+
+    <!-- PHASE 01 -->
+    <section class="audit-section" id="recon">
+      <div class="audit-section-header">
+        <span class="audit-section-num">PHASE 01</span>
+        <h2 class="audit-section-title">Information Gathering and <em>Reconnaissance</em></h2>
+      </div>
+      <p class="section-intro">Before any active testing, a comprehensive picture of the target is built from publicly available and passively observable information. This establishes the attack surface and identifies assets the client may not have considered.</p>
+
+      <div class="test-category open" onclick="toggleCategory(this)">
+        <div class="test-category-header">
+          <span class="test-category-title">DNS and Domain Enumeration</span>
+          <span class="test-tag passive">PASSIVE</span>
+          <span class="test-toggle">+</span>
+        </div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>WHOIS record review — registrar, registration dates, contact exposure</li>
+            <li>DNS record enumeration — A, MX, TXT, CNAME, NS records</li>
+            <li>SPF record review — sender policy configuration and gaps</li>
+            <li>DKIM and DMARC configuration — email authentication hardening</li>
+            <li>Subdomain enumeration — finding forgotten or unprotected assets</li>
+            <li>Zone transfer attempt — misconfigured DNS exposing full zone data</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header">
+          <span class="test-category-title">HTTP Headers and Technology Stack</span>
+          <span class="test-tag passive">PASSIVE</span>
+          <span class="test-toggle">+</span>
+        </div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Server header analysis — web server version disclosure</li>
+            <li>X-Powered-By and framework identification</li>
+            <li>Security headers audit — HSTS, CSP, X-Frame-Options, Referrer-Policy</li>
+            <li>Cookie attributes — Secure, HttpOnly, SameSite flags</li>
+            <li>CMS and library fingerprinting — WordPress, Drupal, known frameworks</li>
+            <li>JavaScript library versions — detection of outdated dependencies</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header">
+          <span class="test-category-title">SSL/TLS Certificate Inspection</span>
+          <span class="test-tag passive">PASSIVE</span>
+          <span class="test-toggle">+</span>
+        </div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Certificate validity and expiry</li>
+            <li>Certificate chain completeness</li>
+            <li>Cipher suite strength — deprecated ciphers, weak key exchange</li>
+            <li>Protocol version — SSLv3, TLS 1.0, TLS 1.1 deprecation check</li>
+            <li>HSTS configuration and preload status</li>
+            <li>Certificate Transparency log review — unexpected issued certificates</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header">
+          <span class="test-category-title">Network Port and Service Discovery</span>
+          <span class="test-tag active">ACTIVE</span>
+          <span class="test-toggle">+</span>
+        </div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Open port scan — common and high port ranges</li>
+            <li>Service version detection on open ports</li>
+            <li>Unnecessary services — FTP, Telnet, unencrypted protocols</li>
+            <li>Admin panel exposure — phpMyAdmin, Adminer, default paths</li>
+            <li>Development or staging environment exposure</li>
+          </ul>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- PHASE 02 -->
+    <section class="audit-section" id="vuln">
+      <div class="audit-section-header">
+        <span class="audit-section-num">PHASE 02</span>
+        <h2 class="audit-section-title">Vulnerability <em>Assessment</em></h2>
+      </div>
+      <p class="section-intro">Automated scanning establishes baseline coverage. Manual testing is where context-aware assessment happens — identifying vulnerabilities that scanners miss because they require judgment about application logic, not just pattern matching.</p>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">SQL Injection</span><span class="test-tag manual">MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Error-based injection — database version and structure disclosure</li>
+            <li>Blind boolean injection — inferring data without visible output</li>
+            <li>Time-based injection — detection via response delay</li>
+            <li>Union-based injection — extracting additional result sets</li>
+            <li>Second-order injection — payloads stored then executed later</li>
+            <li>ORM injection — parameterization gaps in abstraction layers</li>
+          </ul>
+          <p class="test-desc">Tested on all user-controlled inputs interacting with the database: login forms, search fields, filters, URL parameters, API request bodies.</p>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">Cross-Site Scripting (XSS)</span><span class="test-tag manual">MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Reflected XSS — payload returned in immediate response</li>
+            <li>Stored XSS — payload persisted and served to other users</li>
+            <li>DOM-based XSS — client-side JavaScript processing user input</li>
+            <li>CSP bypass testing — evaluating Content Security Policy effectiveness</li>
+            <li>Filter bypass techniques — encoding, tag variation, event handler injection</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">Broken Access Control</span><span class="test-tag manual">MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Horizontal privilege escalation — accessing other users' data by modifying IDs</li>
+            <li>Vertical privilege escalation — reaching admin functions from regular accounts</li>
+            <li>Insecure direct object reference (IDOR) — predictable resource identifiers</li>
+            <li>Missing function-level access control — API endpoints not checking authorization</li>
+            <li>Path traversal — accessing files outside the intended directory</li>
+            <li>Force browsing — accessing restricted pages without proper links</li>
+          </ul>
+          <p class="test-desc">Access control testing requires understanding the application's permission model and attempting to circumvent it through direct manipulation, not just observing surface behavior.</p>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">Authentication and Session Management</span><span class="test-tag manual">MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Default credential testing</li>
+            <li>Brute force protection — rate limiting, lockout policies</li>
+            <li>Session token entropy — predictable or weak token generation</li>
+            <li>Session fixation — forcing a known session ID before authentication</li>
+            <li>Session invalidation — tokens remaining valid after logout</li>
+            <li>Password reset flow — token entropy, expiry, reuse prevention</li>
+            <li>Multi-factor authentication bypass attempts</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">API Security</span><span class="test-tag manual">MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>API endpoint discovery — finding undocumented or legacy endpoints</li>
+            <li>Authentication requirement on all endpoints — including internal ones</li>
+            <li>Rate limiting on sensitive API operations</li>
+            <li>Input validation on all API parameters</li>
+            <li>CORS configuration — overly permissive origins</li>
+            <li>GraphQL introspection — information disclosure</li>
+            <li>Mass assignment — accepting unexpected parameters</li>
+            <li>Error message verbosity — stack traces in API responses</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">File Upload Security</span><span class="test-tag manual">MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Extension bypass — uploading executable files with allowed extensions</li>
+            <li>MIME type validation — content-type vs. actual file content</li>
+            <li>File size limit enforcement</li>
+            <li>Storage location — are uploaded files accessible from the web root?</li>
+            <li>Web shell upload attempts</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">Dependency and Component Scanning</span><span class="test-tag both">AUTO + MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>npm audit — known CVEs in Node.js dependencies</li>
+            <li>pip-audit — Python package vulnerability scan</li>
+            <li>Composer audit — PHP dependency review</li>
+            <li>WordPress plugin and theme version audit</li>
+            <li>Manual review of CVE severity in context of actual usage</li>
+          </ul>
+        </div></div>
+      </div>
+
+      <div class="test-category" onclick="toggleCategory(this)">
+        <div class="test-category-header"><span class="test-category-title">Secrets and Configuration Exposure</span><span class="test-tag both">AUTO + MANUAL</span><span class="test-toggle">+</span></div>
+        <div class="test-body"><div class="test-body-inner">
+          <ul class="test-list">
+            <li>Hardcoded API keys in client-side JavaScript</li>
+            <li>.git directory exposure — source code and history accessible publicly</li>
+            <li>.env file exposure — environment variables served publicly</li>
+            <li>Backup file discovery — .bak, .old, .sql files in web root</li>
+            <li>Debug mode detection — detailed error output in production</li>
+            <li>Stack trace exposure in HTTP error responses</li>
+            <li>Directory listing — web server serving file indexes</li>
+          </ul>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- PHASE 03 -->
+    <section class="audit-section" id="risk">
+      <div class="audit-section-header">
+        <span class="audit-section-num">PHASE 03</span>
+        <h2 class="audit-section-title">Risk Assessment and <em>Prioritization</em></h2>
+      </div>
+      <p class="section-intro">Every finding is scored using CVSS v3.1 and additionally ranked by business impact. CVSS provides a standardized technical severity; business impact adjusts for what the vulnerability actually means for your operations.</p>
+      <table class="cvss-table">
+        <thead><tr><th>CVSS Score</th><th>Severity</th><th>Business Impact Definition</th><th>Remediation Priority</th></tr></thead>
+        <tbody>
+          <tr><td class="s-crit">9.0 – 10.0</td><td class="s-crit">Critical</td><td>Breach exposes customer data, payment info, or causes operational shutdown</td><td>Immediate — 1 to 2 weeks</td></tr>
+          <tr><td class="s-high">7.0 – 8.9</td><td class="s-high">High</td><td>Could lead to unauthorized access or significant data disclosure</td><td>Short-term — within 1 month</td></tr>
+          <tr><td class="s-med">4.0 – 6.9</td><td class="s-med">Medium</td><td>Exploitable but requires specific conditions or user interaction</td><td>Medium-term — 1 to 3 months</td></tr>
+          <tr><td class="s-low">0.1 – 3.9</td><td class="s-low">Low</td><td>Theoretical risk or requires multiple chained exploits</td><td>Long-term — ongoing</td></tr>
+          <tr><td class="s-info">0.0</td><td class="s-info">Info</td><td>Useful for further attacks but not immediately exploitable</td><td>Awareness only</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- REPORT -->
+    <section class="audit-section" id="report">
+      <div class="audit-section-header">
+        <span class="audit-section-num">DELIVERABLE</span>
+        <h2 class="audit-section-title">Audit <em>Report</em> Structure</h2>
+      </div>
+      <div class="report-block">
+        <div class="report-block-header"><span class="report-block-num">01</span><span class="report-block-title">Executive Summary</span></div>
+        <div class="report-block-body">
+          <div class="report-block-item">Overall security posture rating — strong, moderate, or weak</div>
+          <div class="report-block-item">Critical findings summary — written for non-technical stakeholders</div>
+          <div class="report-block-item">Compliance status against applicable standards</div>
+          <div class="report-block-item">High-level remediation recommendations</div>
+        </div>
+      </div>
+      <div class="report-block">
+        <div class="report-block-header"><span class="report-block-num">02</span><span class="report-block-title">Detailed Findings — One entry per vulnerability</span></div>
+        <div class="report-block-body">
+          <div class="report-block-item">Vulnerability name and category</div>
+          <div class="report-block-item">Exact location — URL, parameter, or file reference</div>
+          <div class="report-block-item">CVSS v3.1 score and business impact rating</div>
+          <div class="report-block-item">Description — what it is and why it matters</div>
+          <div class="report-block-item">Proof of concept — how it was discovered and demonstrated during testing</div>
+          <div class="report-block-item">Remediation — specific steps with code examples where applicable</div>
+          <div class="report-block-item">Standards mapping — OWASP category, GDPR implications, PCI-DSS if applicable</div>
+        </div>
+      </div>
+      <div class="report-block">
+        <div class="report-block-header"><span class="report-block-num">03</span><span class="report-block-title">OWASP Top 10 Compliance Checklist — 2021 Edition</span></div>
+        <div class="report-block-body">
+          <div class="report-block-item">Status per category — compliant, non-compliant, partially compliant, not applicable</div>
+          <div class="report-block-item">Finding references linked to detailed findings where violations exist</div>
+        </div>
+      </div>
+      <div class="report-block">
+        <div class="report-block-header"><span class="report-block-num">04</span><span class="report-block-title">Remediation Roadmap</span></div>
+        <div class="report-block-body">
+          <div class="report-block-item">Prioritized by severity and business impact</div>
+          <div class="report-block-item">Effort estimate per item in hours</div>
+          <div class="report-block-item">Complexity rating — determines sequencing with development resources</div>
+          <div class="report-block-item">Step-by-step remediation guidance for each finding</div>
+        </div>
+      </div>
+      <div class="report-block">
+        <div class="report-block-header"><span class="report-block-num">05</span><span class="report-block-title">Audit Metadata and Sign-off</span></div>
+        <div class="report-block-body">
+          <div class="report-block-item">Audit date, duration, and methodology version</div>
+          <div class="report-block-item">Auditor name — named accountability for all findings</div>
+          <div class="report-block-item">Scope document — what was tested and what was excluded</div>
+          <div class="report-block-item">Assumptions, limitations, and tools used</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPLIANCE -->
+    <section class="audit-section" id="compliance">
+      <div class="audit-section-header">
+        <span class="audit-section-num">STANDARDS</span>
+        <h2 class="audit-section-title">Compliance <em>Mapping</em></h2>
+      </div>
+      <div class="compliance-grid">
+        <div class="compliance-cell">
+          <p class="compliance-standard">OWASP</p>
+          <p class="compliance-full">Top 10 — 2021 Edition</p>
+          <div class="compliance-items">
+            <div class="compliance-item">Full coverage of all 10 categories</div>
+            <div class="compliance-item">Per-category compliance status</div>
+            <div class="compliance-item">Finding-to-category mapping</div>
+            <div class="compliance-item">Included in all engagements</div>
+          </div>
+        </div>
+        <div class="compliance-cell">
+          <p class="compliance-standard">GDPR</p>
+          <p class="compliance-full">General Data Protection Regulation</p>
+          <div class="compliance-items">
+            <div class="compliance-item">Article 25 — data protection by design</div>
+            <div class="compliance-item">Article 32 — appropriate technical measures</div>
+            <div class="compliance-item">Breach notification readiness review</div>
+            <div class="compliance-item">Applicable if handling EU user data</div>
+          </div>
+        </div>
+        <div class="compliance-cell">
+          <p class="compliance-standard">PCI-DSS</p>
+          <p class="compliance-full">Payment Card Industry Data Security Standard</p>
+          <div class="compliance-items">
+            <div class="compliance-item">Network segmentation review</div>
+            <div class="compliance-item">Cardholder data encryption</div>
+            <div class="compliance-item">Access control requirements</div>
+            <div class="compliance-item">Applicable if processing payments</div>
+          </div>
+        </div>
+        <div class="compliance-cell">
+          <p class="compliance-standard">ISO 27001</p>
+          <p class="compliance-full">Information Security Management</p>
+          <div class="compliance-items">
+            <div class="compliance-item">Information security management gap analysis</div>
+            <div class="compliance-item">Annex A controls mapping</div>
+            <div class="compliance-item">Relevant for enterprise client requirements</div>
+            <div class="compliance-item">Available as additional scope item</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="audit-section" id="tools">
+      <div class="audit-section-header">
+        <span class="audit-section-num">TOOLING</span>
+        <h2 class="audit-section-title">Tools <em>Used</em></h2>
+      </div>
+      <div class="tools-grid">
+        <div class="tool-cell"><p class="tool-name">Burp Suite</p><p class="tool-use">Manual web application testing, proxy interception, active scanner</p></div>
+        <div class="tool-cell"><p class="tool-name">OWASP ZAP</p><p class="tool-use">Automated vulnerability scanning, OWASP Top 10 coverage</p></div>
+        <div class="tool-cell"><p class="tool-name">Nmap</p><p class="tool-use">Network port scanning and service version detection</p></div>
+        <div class="tool-cell"><p class="tool-name">testssl.sh</p><p class="tool-use">SSL/TLS configuration and cipher suite analysis</p></div>
+        <div class="tool-cell"><p class="tool-name">Subfinder</p><p class="tool-use">Subdomain enumeration and attack surface mapping</p></div>
+        <div class="tool-cell"><p class="tool-name">npm/pip audit</p><p class="tool-use">Dependency vulnerability scanning for known CVEs</p></div>
+        <div class="tool-cell"><p class="tool-name">sqlmap</p><p class="tool-use">SQL injection confirmation — used after manual identification</p></div>
+        <div class="tool-cell"><p class="tool-name">WPScan</p><p class="tool-use">WordPress-specific plugin, theme, and core vulnerability scanning</p></div>
+        <div class="tool-cell"><p class="tool-name">Custom scripts</p><p class="tool-use">Application-specific testing — auth flows, API endpoints, logic flaws</p></div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="audit-section" id="remediation">
+      <div class="audit-section-header">
+        <span class="audit-section-num">ROADMAP</span>
+        <h2 class="audit-section-title">Remediation <em>Timeline</em></h2>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-when"><p class="timeline-period" style="color:#c95555;">Immediate</p><p class="timeline-window">1 to 2 weeks</p></div>
+          <div class="timeline-body"><p class="timeline-label">Critical vulnerabilities</p><p class="timeline-desc">CVSS 9.0+ or direct exposure of sensitive data. These require attention regardless of development sprint cycles. Specific remediation steps with code examples are provided in the report.</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-when"><p class="timeline-period" style="color:#c46e3d;">Short-term</p><p class="timeline-window">Within 1 month</p></div>
+          <div class="timeline-body"><p class="timeline-label">High-severity issues</p><p class="timeline-desc">CVSS 7.0 to 8.9. Significant risk but typically requires more remediation effort — architectural changes, library upgrades, or refactoring authentication flows. Effort estimates guide sprint planning.</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-when"><p class="timeline-period" style="color:var(--gold);opacity:0.85;">Medium-term</p><p class="timeline-window">1 to 3 months</p></div>
+          <div class="timeline-body"><p class="timeline-label">Medium-severity and architectural issues</p><p class="timeline-desc">Vulnerabilities requiring specific conditions to exploit, or larger architectural improvements. Security header hardening, logging improvements, access control refactoring.</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-when"><p class="timeline-period" style="color:#6ea870;">Long-term</p><p class="timeline-window">Ongoing</p></div>
+          <div class="timeline-body"><p class="timeline-label">Low-severity and process improvements</p><p class="timeline-desc">Low-risk items, informational findings, monitoring setup, and security culture improvements. Dependency management processes, incident response procedures, audit trail implementation.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="audit-cta">
+<pre class="audit-cta-ascii">  .--[ CNRCO ]---.
+  | AUDIT REQUEST |
+  |  >_ ready?   |
+  '---------------'</pre>
+      <h2 class="audit-cta-title">Ready to begin?</h2>
+      <p class="audit-cta-desc">Scoping call is free and carries no obligation.<br>After discovery, you receive a written scope document and cost estimate before any work begins.</p>
+      <a href="index.html#contact" class="btn-primary">Request an audit</a>
+    </div>
+
+  </main>
+</div>
+
+<footer class="audit-footer">
+  <p class="footer-brand">CNRCO</p>
+  <ul class="footer-links">
+    <li><a href="index.html">Main site</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#pricing">Pricing</a></li>
+    <li><a href="mailto:cnrco@outlook.com">cnrco@outlook.com</a></li>
+  </ul>
+  <p class="footer-sig">&gt;_</p>
+</footer>
+
+<script>
+  function toggleCategory(el) { el.classList.toggle('open'); }
+  const hamburger = document.getElementById('hamburger');
+  const drawer = document.getElementById('drawer');
+  hamburger.addEventListener('click', () => {
+    const open = drawer.classList.toggle('open');
+    hamburger.classList.toggle('open', open);
+  });
+  function closeDrawer() { drawer.classList.remove('open'); hamburger.classList.remove('open'); }
+  document.addEventListener('click', e => {
+    if (!hamburger.contains(e.target) && !drawer.contains(e.target)) closeDrawer();
+  });
+
+  // TOC active on scroll
+  const sections = document.querySelectorAll('.audit-section');
+  const tocLinks = document.querySelectorAll('.toc-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.toc-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
