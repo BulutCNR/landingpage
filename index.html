@@ -3,818 +3,1178 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CNRCO: Security Audit Services</title>
+<title>CNRCO — Security Audit Services</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #FFD400;
-    --gold-dim: rgba(255,212,0,0.1);
-    --gold-border: rgba(255,212,0,0.2);
-    --chartreuse: #CEFF1A;
-    --copper: #A57F60;
-    --white: #dde3ef;
-    --bg: #090c14;
-    --bg2: #0b0f1a;
-    --bg3: #0d1120;
-    --card: #0c1019;
-    --border: rgba(255,212,0,0.14);
-    --border-dim: rgba(255,255,255,0.05);
-    --text: #7a8499;
-    --text-mid: #a8b3c6;
-    --text-bright: #dde3ef;
-    --radius: 6px;
-    --radius-sm: 3px;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.7;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.055) 3px, rgba(0,0,0,0.055) 4px);
-    pointer-events: none; z-index: 9999;
-  }
-  body::after {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(255,212,0,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,212,0,0.015) 1px, transparent 1px);
-    background-size: 72px 72px;
-    pointer-events: none; z-index: 0;
-  }
+/* ─── RESET & ROOT ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
-  /* NAV */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0;
-    z-index: 1000;
-    background: rgba(9,12,20,0.95);
-    border-bottom: 1px solid var(--border-dim);
-    backdrop-filter: blur(10px);
-    padding: 0 48px; height: 54px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .nav-logo {
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 700; font-size: 16px;
-    color: var(--gold); letter-spacing: 5px; text-decoration: none;
-  }
-  .nav-logo::after { content: '_'; animation: blink 1.4s step-end infinite; color: var(--text-mid); }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-  .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
-  .nav-links a {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    color: var(--text); text-decoration: none; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--gold); }
-  .nav-cta {
-    color: var(--gold) !important; border: 1px solid var(--gold-border) !important;
-    border-radius: var(--radius-sm); padding: 6px 16px !important; transition: background 0.2s !important;
-  }
-  .nav-cta:hover { background: var(--gold-dim) !important; }
-  .hamburger {
-    display: none; flex-direction: column; gap: 5px;
-    cursor: pointer; background: none; border: none; padding: 4px;
-  }
-  .hamburger span { width: 22px; height: 1px; background: var(--gold); display: block; transition: all 0.3s; }
-  .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-  .hamburger.open span:nth-child(2) { opacity: 0; }
-  .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-  .drawer {
-    position: fixed; top: 54px; left: 0; right: 0;
-    background: rgba(9,12,20,0.98); border-bottom: 1px solid var(--border);
-    z-index: 999; padding: 20px 24px;
-    display: flex; flex-direction: column; gap: 2px;
-    transform: translateY(-100%); opacity: 0;
-    transition: transform 0.3s ease, opacity 0.3s ease; pointer-events: none;
-  }
-  .drawer.open { transform: translateY(0); opacity: 1; pointer-events: all; }
-  .drawer a {
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
-    color: var(--text); text-decoration: none; letter-spacing: 1px;
-    padding: 12px 0; border-bottom: 1px solid var(--border-dim); transition: color 0.2s;
-  }
-  .drawer a:hover { color: var(--gold); }
-  .drawer-audit { color: var(--gold) !important; }
-  .drawer-badge {
-    display: inline-block; font-size: 8px; border: 1px solid var(--gold-border);
-    border-radius: 2px; padding: 2px 6px; letter-spacing: 1px;
-    margin-right: 8px; color: var(--text);
-  }
+:root {
+  /* palette – shifts per section via JS class on <html> */
+  --gold:         #FFD400;
+  --gold-dim:     rgba(255,212,0,0.10);
+  --gold-border:  rgba(255,212,0,0.20);
+  --chartreuse:   #CEFF1A;
+  --copper:       #A57F60;
 
-  /* HERO */
-  .hero {
-    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
-    padding: 120px 60px 80px; position: relative; z-index: 1;
-  }
-  .hero-ascii {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-    color: rgba(255,212,0,0.28); line-height: 1.2;
-    margin-bottom: 36px; white-space: pre; letter-spacing: 0; user-select: none;
-  }
-  .hero-tag {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    color: var(--text); letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
-  }
-  .hero-tag::before { content: '//'; color: var(--gold); opacity: 0.8; }
-  .hero-headline {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: clamp(26px, 4.5vw, 50px); font-weight: 700;
-    color: var(--text-bright); line-height: 1.1; letter-spacing: 1px;
-    max-width: 660px; margin-bottom: 20px;
-  }
-  .hero-headline em { font-style: normal; color: var(--gold); }
-  .hero-sub {
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    color: var(--text); max-width: 490px; line-height: 1.9;
-    margin-bottom: 44px; letter-spacing: 0.3px;
-  }
-  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 64px; }
-  .btn-primary {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
-    letter-spacing: 2.5px; text-transform: uppercase; padding: 13px 28px;
-    background: var(--gold); color: #090c14; border: none;
-    border-radius: var(--radius-sm); cursor: pointer; text-decoration: none;
-    display: inline-block; transition: opacity 0.2s;
-  }
-  .btn-primary:hover { opacity: 0.85; }
-  .btn-secondary {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-    letter-spacing: 2.5px; text-transform: uppercase; padding: 13px 28px;
-    background: transparent; color: var(--text-mid);
-    border: 1px solid var(--border-dim); border-radius: var(--radius-sm);
-    cursor: pointer; text-decoration: none; display: inline-block; transition: border-color 0.2s, color 0.2s;
-  }
-  .btn-secondary:hover { border-color: var(--gold-border); color: var(--gold); }
-  .stat-bar {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 1px; background: var(--border-dim);
-    border: 1px solid var(--border-dim); border-radius: var(--radius); overflow: hidden;
-    max-width: 500px;
-  }
-  .stat-item { background: var(--card); padding: 18px 20px; }
-  .stat-num {
-    font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 700;
-    color: var(--gold); line-height: 1; margin-bottom: 5px;
-  }
-  .stat-label {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    color: var(--text); letter-spacing: 1px; text-transform: uppercase; line-height: 1.5;
-  }
+  --bg:    #090c14;
+  --bg2:   #0b0f1a;
+  --card:  #0d1120;
+  --border-dim: rgba(255,255,255,0.055);
 
-  /* SECTIONS */
-  section { position: relative; z-index: 1; padding: 80px 60px; }
-  .section-eyebrow {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    color: var(--text); letter-spacing: 3px; text-transform: uppercase;
-    margin-bottom: 36px; display: flex; align-items: center; gap: 14px;
-  }
-  .section-eyebrow::before { content: attr(data-n); color: var(--gold); opacity: 0.8; font-size: 9px; }
-  .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border-dim); }
-  .section-title {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: clamp(18px, 2.6vw, 28px); font-weight: 700;
-    color: var(--text-bright); letter-spacing: 1px; margin-bottom: 10px;
-  }
-  .section-title em { font-style: normal; color: var(--gold); }
-  .section-desc {
-    font-family: 'IBM Plex Sans', sans-serif; color: var(--text);
-    max-width: 540px; margin-bottom: 44px; font-size: 13px; line-height: 1.85;
-  }
+  --text:        #62708a;
+  --text-mid:    #9daabb;
+  --text-bright: #dde4f0;
 
-  /* AUDIT BANNER */
-  .audit-banner {
-    position: relative; z-index: 1; margin: 0 60px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px 26px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
-  }
-  .audit-banner-left { display: flex; align-items: center; gap: 14px; }
-  .audit-banner-icon {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--gold);
-    border: 1px solid var(--gold-border); border-radius: var(--radius-sm);
-    padding: 3px 8px; letter-spacing: 1px; white-space: nowrap; opacity: 0.85;
-  }
-  .audit-banner-text {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-    color: var(--text); letter-spacing: 0.3px; line-height: 1.5;
-  }
-  .audit-banner-link {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500;
-    letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-decoration: none;
-    padding: 7px 16px; border: 1px solid var(--gold-border); border-radius: var(--radius-sm);
-    transition: background 0.2s; white-space: nowrap; opacity: 0.85;
-  }
-  .audit-banner-link:hover { background: var(--gold-dim); opacity: 1; }
+  /* cursor glow color – overridden per zone */
+  --cursor-glow: rgba(255,212,0,0.55);
+  --cursor-size: 12px;
 
-  /* PROBLEM */
-  .problem { background: var(--bg2); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim); }
-  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
-  .problem-text { font-family: 'IBM Plex Sans', sans-serif; color: var(--text-mid); line-height: 1.9; font-size: 13px; }
-  .problem-text p { margin-bottom: 18px; }
-  .problem-text strong { color: var(--gold); font-weight: 600; }
-  .threat-stack { display: flex; flex-direction: column; gap: 10px; }
-  .threat-card {
-    background: var(--card); border: 1px solid var(--border-dim);
-    border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden;
-  }
-  .threat-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0;
-    height: 1px; background: var(--gold); opacity: 0.35;
-  }
-  .threat-label {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 2px; color: var(--text); text-transform: uppercase; margin-bottom: 14px;
-  }
-  .threat-stat {
-    font-family: 'IBM Plex Mono', monospace; font-size: 42px; font-weight: 700;
-    color: var(--gold); line-height: 1; margin-bottom: 8px;
-  }
-  .threat-desc {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    color: var(--text); line-height: 1.7; letter-spacing: 0.2px;
-  }
+  --r: 8px;
+  --r-sm: 4px;
 
-  /* PHASES */
-  .phases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .phase-card {
-    background: var(--card); border: 1px solid var(--border-dim);
-    border-radius: var(--radius); padding: 26px 22px; transition: border-color 0.25s;
-  }
-  .phase-card:hover { border-color: var(--gold-border); }
-  .phase-num {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    color: var(--text); letter-spacing: 2px; margin-bottom: 16px;
-  }
-  .phase-num em { font-style: normal; color: var(--gold); opacity: 0.85; }
-  .phase-title {
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600;
-    color: var(--text-bright); margin-bottom: 16px; line-height: 1.3;
-  }
-  .phase-items { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-  .phase-items li {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
-    letter-spacing: 0.2px; display: flex; align-items: baseline; gap: 8px; line-height: 1.5;
-  }
-  .phase-items li::before { content: '>'; color: var(--gold); flex-shrink: 0; opacity: 0.6; }
-  .phases-more { margin-top: 16px; text-align: right; }
-  .phases-more a {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--gold);
-    letter-spacing: 1.5px; text-decoration: none; opacity: 0.65; transition: opacity 0.2s;
-  }
-  .phases-more a:hover { opacity: 1; }
+  /* scroll-accent – lerped in JS */
+  --accent: var(--gold);
+}
 
-  /* REPORT */
-  .report-section { background: var(--bg3); }
-  .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
-  .report-card {
-    background: var(--card); border: 1px solid var(--border-dim);
-    border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s;
-    margin-bottom: 10px;
-  }
-  .report-card:last-child { margin-bottom: 0; }
-  .report-card:hover { border-color: var(--gold-border); }
-  .report-card-header {
-    background: rgba(255,212,0,0.035); border-bottom: 1px solid var(--border-dim);
-    padding: 11px 16px; display: flex; align-items: center; justify-content: space-between;
-  }
-  .report-card-title {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600;
-    color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.9;
-  }
-  .report-card-badge {
-    font-family: 'IBM Plex Mono', monospace; font-size: 8px; color: var(--text); letter-spacing: 1px;
-  }
-  .report-card-body { padding: 14px 16px; display: flex; flex-direction: column; }
-  .report-row {
-    display: flex; align-items: baseline; gap: 10px;
-    padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
-  }
-  .report-row:last-child { border-bottom: none; }
-  .report-row-label {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text);
-    width: 118px; flex-shrink: 0; letter-spacing: 0.2px;
-  }
-  .report-row-val {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    color: var(--text-mid); letter-spacing: 0.2px; flex: 1;
-  }
-  .c-crit { color: #c95555; }
-  .c-high { color: #c46e3d; }
-  .c-med  { color: var(--gold); opacity: 0.9; }
-  .c-low  { color: #6ea870; }
-  .cvss-bar-wrap { margin: 4px 0; }
-  .cvss-label-row {
-    display: flex; justify-content: space-between;
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); margin-bottom: 3px;
-  }
-  .cvss-bar { height: 2px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
-  .cvss-fill { height: 100%; background: var(--gold); opacity: 0.55; border-radius: 2px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  overflow-x: hidden;
+  cursor: none; /* hide native cursor */
+}
 
-  /* WHY */
-  .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .why-card {
-    background: var(--card); border: 1px solid var(--border-dim);
-    border-radius: var(--radius); padding: 22px; transition: border-color 0.25s;
-  }
-  .why-card:hover { border-color: var(--gold-border); }
-  .why-label {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text);
-    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .why-label::before { content: '[ ]'; color: var(--gold); font-size: 9px; opacity: 0.55; }
-  .why-title {
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
-    color: var(--text-bright); margin-bottom: 10px; letter-spacing: 0.3px;
-  }
-  .why-text { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; color: var(--text); line-height: 1.78; }
+/* scanlines */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 3px,
+    rgba(0,0,0,0.045) 3px, rgba(0,0,0,0.045) 4px
+  );
+  pointer-events: none; z-index: 9997;
+}
+/* grid */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,212,0,0.013) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,212,0,0.013) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none; z-index: 0;
+}
 
-  /* PRICING */
-  .pricing-section { background: var(--bg2); border-top: 1px solid var(--border-dim); }
-  .pricing-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); max-width: 520px; overflow: hidden; position: relative;
-  }
-  .pricing-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0;
-    height: 2px; background: var(--gold); opacity: 0.6;
-  }
-  .pricing-header { padding: 26px 30px; border-bottom: 1px solid var(--border-dim); }
-  .pricing-tag {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 2px; color: var(--text); text-transform: uppercase; margin-bottom: 12px;
-  }
-  .pricing-rate {
-    font-family: 'IBM Plex Mono', monospace; font-size: 40px; font-weight: 700;
-    color: var(--gold); line-height: 1;
-  }
-  .pricing-rate sup { font-size: 15px; color: var(--text); vertical-align: super; }
-  .pricing-rate sub { font-size: 13px; color: var(--text); vertical-align: baseline; }
-  .pricing-estimate {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    color: var(--copper); margin-top: 8px; letter-spacing: 0.2px;
-  }
-  .pricing-body { padding: 26px 30px; }
-  .pricing-includes { display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; }
-  .pricing-item {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-mid);
-    display: flex; align-items: baseline; gap: 10px; letter-spacing: 0.2px;
-  }
-  .pricing-item::before { content: '+'; color: var(--gold); opacity: 0.7; flex-shrink: 0; }
-  .pricing-note {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
-    border-top: 1px solid var(--border-dim); padding-top: 18px; line-height: 1.75; letter-spacing: 0.2px;
-  }
+/* ─── CUSTOM CURSOR ─────────────────────────────────────────────── */
+#cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--cursor-size);
+  height: var(--cursor-size);
+  border-radius: 50%;
+  background: var(--gold);
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: width 0.18s ease, height 0.18s ease, background 0.35s ease, border-radius 0.2s ease;
+  mix-blend-mode: screen;
+}
+#cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: width 0.28s ease, height 0.28s ease, border-color 0.35s ease, border-radius 0.2s ease, opacity 0.2s;
+  opacity: 0.5;
+}
+#cursor-glow {
+  position: fixed;
+  top: 0; left: 0;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--cursor-glow);
+  pointer-events: none;
+  z-index: 99996;
+  transform: translate(-50%, -50%);
+  filter: blur(32px);
+  opacity: 0.35;
+  transition: background 0.5s ease, opacity 0.3s ease, width 0.3s, height 0.3s;
+}
 
-  /* FORM */
-  .form-section { background: var(--bg3); border-top: 1px solid var(--border-dim); }
-  .form-wrap { display: grid; grid-template-columns: 1fr 1.3fr; gap: 60px; align-items: start; }
-  .form-aside { position: sticky; top: 72px; }
-  .form-aside-ascii {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
-    color: rgba(255,212,0,0.2); line-height: 1.25; margin-bottom: 26px;
-    white-space: pre; user-select: none;
-  }
-  .form-aside-title {
-    font-family: 'IBM Plex Mono', monospace; font-size: clamp(16px, 2vw, 21px); font-weight: 700;
-    color: var(--text-bright); margin-bottom: 14px; letter-spacing: 1px; line-height: 1.25;
-  }
-  .form-aside-title em { font-style: normal; color: var(--gold); }
-  .form-aside-desc { font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; color: var(--text); line-height: 1.8; margin-bottom: 28px; }
-  .form-meta { display: flex; flex-direction: column; gap: 8px; }
-  .form-meta-item {
-    font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
-    letter-spacing: 0.3px; display: flex; align-items: center; gap: 10px;
-  }
-  .form-meta-item::before { content: '>'; color: var(--gold); opacity: 0.65; }
-  .audit-form {
-    display: flex; flex-direction: column; gap: 16px;
-    background: var(--card); border: 1px solid var(--border-dim);
-    border-radius: var(--radius); padding: 30px;
-  }
-  .form-group { display: flex; flex-direction: column; gap: 6px; }
-  .form-label {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    letter-spacing: 2.5px; color: var(--text); text-transform: uppercase;
-  }
-  .form-input, .form-select, .form-textarea {
-    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-bright);
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border-dim);
-    border-radius: var(--radius-sm); padding: 11px 13px; width: 100%; outline: none;
-    transition: border-color 0.2s; letter-spacing: 0.2px; -webkit-appearance: none; appearance: none;
-  }
-  .form-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23FFD400' opacity='0.5'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 13px center;
-    background-color: rgba(255,255,255,0.03); padding-right: 34px;
-  }
-  .form-select option { background: #090c14; }
-  .form-textarea { resize: vertical; min-height: 80px; }
-  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: rgba(255,212,0,0.35); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-submit {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
-    letter-spacing: 2.5px; text-transform: uppercase; padding: 14px;
-    background: var(--gold); color: #090c14; border: none; border-radius: var(--radius-sm);
-    cursor: pointer; width: 100%; transition: opacity 0.2s; margin-top: 6px;
-  }
-  .form-submit:hover { opacity: 0.85; }
+/* cursor states */
+body.cursor-link #cursor-dot { width: 6px; height: 6px; }
+body.cursor-link #cursor-ring { width: 52px; height: 52px; opacity: 0.7; }
+body.cursor-link #cursor-glow { opacity: 0.55; }
 
-  /* FOOTER */
-  footer {
-    position: relative; z-index: 1; background: var(--card);
-    border-top: 1px solid var(--border-dim); padding: 48px 60px;
-    display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 40px; align-items: start;
-  }
-  .footer-ascii {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
-    color: rgba(255,212,0,0.18); line-height: 1.2; margin-bottom: 14px;
-    white-space: pre; user-select: none;
-  }
-  .footer-brand {
-    font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 700;
-    color: var(--gold); letter-spacing: 5px; margin-bottom: 10px;
-  }
-  .footer-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text); line-height: 1.7; letter-spacing: 0.2px; }
-  .footer-col-title {
-    font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text);
-    letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 14px;
-  }
-  .footer-links { display: flex; flex-direction: column; gap: 9px; list-style: none; }
-  .footer-links a {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text);
-    text-decoration: none; letter-spacing: 0.2px; transition: color 0.2s;
-  }
-  .footer-links a:hover { color: var(--gold); }
-  .footer-mail {
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gold);
-    text-decoration: none; display: block; margin-top: 6px; letter-spacing: 0.3px; opacity: 0.8;
-  }
-  .footer-mail:hover { opacity: 1; }
-  .footer-bottom {
-    position: relative; z-index: 1; border-top: 1px solid var(--border-dim);
-    padding: 16px 60px; display: flex; justify-content: space-between; align-items: center;
-  }
-  .footer-copy { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text); letter-spacing: 0.3px; opacity: 0.5; }
-  .footer-sig { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--chartreuse); letter-spacing: 2px; opacity: 0.7; }
+body.cursor-text #cursor-dot { width: 3px; height: 20px; border-radius: 2px; background: var(--gold); }
+body.cursor-text #cursor-ring { opacity: 0.15; }
 
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    nav { padding: 0 20px; }
-    .nav-links { display: none; }
-    .hamburger { display: flex; }
-    section { padding: 56px 20px; }
-    .hero { padding: 100px 20px 60px; }
-    .audit-banner { margin: 0 20px; }
-    .problem-grid, .report-grid, .form-wrap { grid-template-columns: 1fr; }
-    .phases-grid { grid-template-columns: 1fr; }
-    .why-grid { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-    .stat-bar { grid-template-columns: 1fr; }
-    footer { grid-template-columns: 1fr; padding: 36px 20px; }
-    .footer-bottom { padding: 16px 20px; flex-direction: column; gap: 6px; text-align: center; }
-    .hero-ascii { font-size: 9px; }
-    .form-aside-ascii { display: none; }
-  }
+body.cursor-btn #cursor-dot { width: 42px; height: 42px; background: rgba(255,212,0,0.15); border-radius: var(--r-sm); }
+body.cursor-btn #cursor-ring { width: 50px; height: 50px; border-radius: var(--r-sm); opacity: 0.6; }
+body.cursor-btn #cursor-glow { opacity: 0.7; width: 160px; height: 160px; }
+
+/* zone-specific cursor tint */
+html.zone-hero   { --cursor-glow: rgba(255,212,0,0.55); }
+html.zone-problem{ --cursor-glow: rgba(200,80,80,0.45); }
+html.zone-what   { --cursor-glow: rgba(255,212,0,0.45); }
+html.zone-how    { --cursor-glow: rgba(100,180,255,0.35); }
+html.zone-why    { --cursor-glow: rgba(160,220,100,0.35); }
+html.zone-pricing{ --cursor-glow: rgba(255,212,0,0.6); }
+html.zone-contact{ --cursor-glow: rgba(255,212,0,0.5); }
+
+/* ─── SCROLL COLOR SHIFTS ───────────────────────────────────────── */
+/* The JS adds data-zone to <html>; CSS transitions handle the tint */
+html { transition: --accent 0.6s; }
+html.zone-hero    { --section-tint: rgba(255,212,0,0.03); }
+html.zone-problem { --section-tint: rgba(180,50,50,0.04); }
+html.zone-what    { --section-tint: rgba(255,212,0,0.025); }
+html.zone-how     { --section-tint: rgba(60,140,220,0.04); }
+html.zone-why     { --section-tint: rgba(100,200,80,0.03); }
+html.zone-pricing { --section-tint: rgba(255,212,0,0.04); }
+html.zone-contact { --section-tint: rgba(255,212,0,0.03); }
+
+/* ─── SCROLL REVEAL ─────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s cubic-bezier(.22,.68,0,1.2), transform 0.75s cubic-bezier(.22,.68,0,1.2);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-left  { transform: translateX(-32px) translateY(0); }
+.reveal-left.visible { transform: translateX(0); }
+.reveal-right { transform: translateX(32px) translateY(0); }
+.reveal-right.visible { transform: translateX(0); }
+
+/* ─── NAV ───────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(9,12,20,0.9);
+  border-bottom: 1px solid var(--border-dim);
+  backdrop-filter: blur(14px);
+  padding: 0 56px; height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: border-color 0.5s, background 0.5s;
+}
+.nav-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700; font-size: 16px;
+  color: var(--gold); letter-spacing: 5px; text-decoration: none;
+}
+.nav-logo::after { content: '_'; animation: blink 1.4s step-end infinite; color: var(--text-mid); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--text); text-decoration: none; letter-spacing: 2px; text-transform: uppercase;
+  transition: color 0.25s;
+}
+.nav-links a:hover { color: var(--gold); }
+.nav-cta {
+  color: var(--gold) !important;
+  border: 1px solid var(--gold-border) !important;
+  border-radius: var(--r-sm); padding: 7px 18px !important;
+  transition: background 0.2s !important;
+}
+.nav-cta:hover { background: var(--gold-dim) !important; }
+
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: none; background: none; border: none; padding: 4px; }
+.hamburger span { width: 22px; height: 1px; background: var(--gold); display: block; transition: all 0.3s; }
+.hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.drawer {
+  position: fixed; top: 58px; left: 0; right: 0;
+  background: rgba(9,12,20,0.98); border-bottom: 1px solid var(--gold-border);
+  z-index: 999; padding: 24px;
+  display: flex; flex-direction: column;
+  transform: translateY(-100%); opacity: 0;
+  transition: transform 0.32s ease, opacity 0.32s ease; pointer-events: none;
+}
+.drawer.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+.drawer a {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+  color: var(--text-mid); text-decoration: none; letter-spacing: 1px;
+  padding: 14px 0; border-bottom: 1px solid var(--border-dim); transition: color 0.2s;
+}
+.drawer a:hover { color: var(--gold); }
+.drawer-audit { color: var(--gold) !important; font-weight: 500; }
+.drawer-badge {
+  display: inline-block; font-size: 8px; border: 1px solid var(--gold-border);
+  border-radius: 2px; padding: 2px 6px; letter-spacing: 1px;
+  margin-right: 8px; color: var(--text); font-weight: 400;
+}
+
+/* ─── SECTION FRAMEWORK ─────────────────────────────────────────── */
+section {
+  position: relative; z-index: 1;
+  padding: 120px 56px;
+}
+.section-inner { max-width: 1100px; margin: 0 auto; }
+
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: var(--text); letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 20px; display: flex; align-items: center; gap: 14px;
+}
+.eyebrow::before { content: attr(data-n); color: var(--gold); opacity: 0.8; }
+.eyebrow::after  { content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--gold-border); }
+
+.section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(26px, 3.5vw, 46px); font-weight: 700;
+  color: var(--text-bright); letter-spacing: 0.5px; line-height: 1.1;
+  margin-bottom: 20px;
+}
+.section-title em { font-style: normal; color: var(--gold); }
+
+.section-lead {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 17px; color: var(--text-mid); max-width: 600px;
+  line-height: 1.85; margin-bottom: 64px;
+}
+
+/* ─── HERO ──────────────────────────────────────────────────────── */
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  padding: 140px 56px 100px; position: relative; z-index: 1;
+}
+
+.hero-kicker {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--text); letter-spacing: 3.5px; text-transform: uppercase;
+  margin-bottom: 28px; display: flex; align-items: center; gap: 14px;
+}
+.hero-kicker::before { content: '//'; color: var(--gold); opacity: 0.7; }
+
+.hero-headline {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(32px, 5.5vw, 70px); font-weight: 700;
+  color: var(--text-bright); line-height: 1.05; letter-spacing: -0.5px;
+  max-width: 840px; margin-bottom: 32px;
+}
+.hero-headline em { font-style: normal; color: var(--gold); }
+.hero-headline .line2 { display: block; font-size: 0.7em; color: var(--text-mid); font-weight: 300; letter-spacing: 2px; margin-top: 10px; }
+
+.hero-body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 17px; color: var(--text-mid);
+  max-width: 520px; line-height: 1.85; margin-bottom: 52px;
+}
+.hero-body strong { color: var(--text-bright); font-weight: 500; }
+
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 80px; }
+
+.btn-primary {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase; padding: 15px 32px;
+  background: var(--gold); color: #090c14; border: none;
+  border-radius: var(--r-sm); text-decoration: none; display: inline-block;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-secondary {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  letter-spacing: 2.5px; text-transform: uppercase; padding: 15px 32px;
+  background: transparent; color: var(--text-mid);
+  border: 1px solid var(--border-dim); border-radius: var(--r-sm);
+  text-decoration: none; display: inline-block; transition: border-color 0.2s, color 0.2s;
+}
+.btn-secondary:hover { border-color: var(--gold-border); color: var(--gold); }
+
+/* hero stat strip */
+.hero-stats {
+  display: flex; gap: 0;
+  border: 1px solid var(--border-dim); border-radius: var(--r);
+  overflow: hidden; max-width: 520px;
+}
+.hero-stat {
+  flex: 1; background: var(--card); padding: 22px 24px;
+  border-right: 1px solid var(--border-dim);
+  transition: background 0.3s;
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat:hover { background: rgba(255,212,0,0.04); }
+.stat-n {
+  font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 700;
+  color: var(--gold); line-height: 1; margin-bottom: 6px;
+}
+.stat-l {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: var(--text); letter-spacing: 1.5px; text-transform: uppercase; line-height: 1.5;
+}
+
+/* ─── AUDIT BANNER ──────────────────────────────────────────────── */
+.audit-banner {
+  position: relative; z-index: 1;
+  margin: 0 56px;
+  background: var(--card); border: 1px solid var(--gold-border);
+  border-radius: var(--r); padding: 22px 32px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;
+  transition: border-color 0.3s;
+}
+.audit-banner:hover { border-color: rgba(255,212,0,0.35); }
+.banner-left { display: flex; align-items: center; gap: 16px; }
+.banner-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--gold);
+  border: 1px solid var(--gold-border); border-radius: var(--r-sm);
+  padding: 4px 10px; letter-spacing: 1px; white-space: nowrap; opacity: 0.85;
+}
+.banner-text {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--text-mid); letter-spacing: 0.3px; line-height: 1.55;
+}
+.banner-link {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--gold); text-decoration: none;
+  padding: 9px 20px; border: 1px solid var(--gold-border); border-radius: var(--r-sm);
+  transition: background 0.2s; white-space: nowrap; opacity: 0.85;
+}
+.banner-link:hover { background: var(--gold-dim); opacity: 1; }
+
+/* ─── PROBLEM / WHAT IS SECTION ─────────────────────────────────── */
+.section-problem { background: var(--bg2); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim); }
+
+.intro-grid {
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 80px; align-items: start;
+}
+
+.intro-body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px; color: var(--text-mid); line-height: 1.9;
+}
+.intro-body p { margin-bottom: 22px; }
+.intro-body strong { color: var(--text-bright); font-weight: 500; }
+.intro-body em { font-style: italic; color: var(--gold); }
+
+.threat-stack { display: flex; flex-direction: column; gap: 12px; }
+
+.threat-card {
+  background: var(--card); border: 1px solid var(--border-dim);
+  border-radius: var(--r); padding: 28px 28px 24px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.threat-card:hover { border-color: var(--gold-border); transform: translateX(4px); }
+.threat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  opacity: 0.4;
+}
+.threat-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  letter-spacing: 2px; color: var(--text); text-transform: uppercase; margin-bottom: 14px;
+}
+.threat-num {
+  font-family: 'IBM Plex Mono', monospace; font-size: 52px; font-weight: 700;
+  color: var(--gold); line-height: 1; margin-bottom: 8px; opacity: 0.9;
+}
+.threat-desc {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--text); line-height: 1.75; letter-spacing: 0.2px;
+}
+
+/* ─── WHAT WE DO ────────────────────────────────────────────────── */
+.section-what { background: var(--bg); }
+
+.what-intro {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; margin-bottom: 72px;
+}
+.what-intro-right {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 15px;
+  color: var(--text); line-height: 1.85;
+}
+
+/* big service cards */
+.services-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.service-card {
+  background: var(--card); border: 1px solid var(--border-dim);
+  border-radius: var(--r); padding: 40px 32px;
+  display: flex; flex-direction: column;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative; overflow: hidden;
+}
+.service-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--gold); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s ease; opacity: 0.6;
+}
+.service-card:hover { border-color: var(--gold-border); transform: translateY(-4px); }
+.service-card:hover::after { transform: scaleX(1); }
+
+.service-num {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: var(--gold); letter-spacing: 2.5px; margin-bottom: 24px; opacity: 0.75;
+}
+.service-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600;
+  color: var(--text-bright); margin-bottom: 16px; line-height: 1.25; letter-spacing: 0.3px;
+}
+.service-body {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;
+  color: var(--text); line-height: 1.8; flex: 1; margin-bottom: 28px;
+}
+.service-list { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-top: auto; }
+.service-list li {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+  display: flex; align-items: baseline; gap: 10px; letter-spacing: 0.2px;
+}
+.service-list li::before { content: '>'; color: var(--gold); opacity: 0.55; flex-shrink: 0; }
+
+/* ─── HOW IT WORKS ──────────────────────────────────────────────── */
+.section-how { background: var(--bg2); border-top: 1px solid var(--border-dim); border-bottom: 1px solid var(--border-dim); }
+
+.process-steps {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  border: 1px solid var(--border-dim); border-radius: var(--r); overflow: hidden;
+}
+.process-step {
+  padding: 40px 32px; border-right: 1px solid var(--border-dim);
+  position: relative; transition: background 0.3s;
+}
+.process-step:last-child { border-right: none; }
+.process-step:hover { background: rgba(255,212,0,0.025); }
+
+.step-num {
+  font-family: 'IBM Plex Mono', monospace; font-size: 36px; font-weight: 700;
+  color: var(--gold); line-height: 1; margin-bottom: 20px; opacity: 0.18;
+}
+.step-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+  color: var(--text-bright); margin-bottom: 12px; letter-spacing: 0.5px;
+}
+.step-body {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 12px;
+  color: var(--text); line-height: 1.75;
+}
+.step-connector {
+  position: absolute; top: 40px; right: -1px;
+  width: 1px; height: 24px; background: var(--gold); opacity: 0.3;
+  display: none;
+}
+
+/* ─── WHY CNRCO ─────────────────────────────────────────────────── */
+.section-why { background: var(--bg); }
+
+.why-header-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; margin-bottom: 72px;
+}
+.why-pull {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 18px;
+  font-style: italic; color: var(--text-mid); line-height: 1.7;
+  border-left: 2px solid var(--gold); padding-left: 24px; opacity: 0.85;
+}
+
+.why-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.why-card {
+  background: var(--card); border: 1px solid var(--border-dim);
+  border-radius: var(--r); padding: 32px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.why-card:hover { border-color: var(--gold-border); background: rgba(255,212,0,0.02); }
+.why-icon {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.why-icon::before { content: '[ ]'; color: var(--gold); opacity: 0.5; font-size: 10px; }
+.why-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600;
+  color: var(--text-bright); margin-bottom: 12px; line-height: 1.3;
+}
+.why-body {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 13px;
+  color: var(--text); line-height: 1.8;
+}
+
+/* ─── WHAT'S IN THE REPORT ──────────────────────────────────────── */
+.section-report { background: var(--bg2); border-top: 1px solid var(--border-dim); }
+
+.report-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+}
+
+.report-card {
+  background: var(--card); border: 1px solid var(--border-dim);
+  border-radius: var(--r); overflow: hidden; margin-bottom: 12px;
+  transition: border-color 0.25s;
+}
+.report-card:last-child { margin-bottom: 0; }
+.report-card:hover { border-color: var(--gold-border); }
+.rc-head {
+  background: rgba(255,212,0,0.04); border-bottom: 1px solid var(--border-dim);
+  padding: 13px 20px; display: flex; align-items: center; justify-content: space-between;
+}
+.rc-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600;
+  color: var(--gold); letter-spacing: 2px; text-transform: uppercase; opacity: 0.85;
+}
+.rc-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 8px;
+  color: var(--text); letter-spacing: 1.5px;
+}
+.rc-body { padding: 16px 20px; }
+.rc-row {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.rc-row:last-child { border-bottom: none; }
+.rc-k {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text);
+  width: 115px; flex-shrink: 0;
+}
+.rc-v {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text-mid); flex: 1;
+}
+.c-crit { color: #c95555; }
+.c-high { color: #c0663a; }
+.c-med  { color: var(--gold); }
+.c-low  { color: #6da870; }
+
+/* owasp bars */
+.owasp-bar-wrap { margin: 3px 0; }
+.owasp-row { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text); margin-bottom: 3px; }
+.owasp-track { height: 2px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+.owasp-fill { height: 100%; background: var(--gold); opacity: 0.5; border-radius: 2px; }
+
+/* ─── PRICING ───────────────────────────────────────────────────── */
+.section-pricing { background: var(--bg); border-top: 1px solid var(--border-dim); }
+
+.pricing-layout {
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 80px; align-items: start;
+}
+.pricing-card {
+  background: var(--card); border: 1px solid var(--gold-border);
+  border-radius: var(--r); overflow: hidden; position: relative;
+}
+.pricing-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: var(--gold); opacity: 0.6;
+}
+.pc-head { padding: 32px 36px; border-bottom: 1px solid var(--border-dim); }
+.pc-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  letter-spacing: 2.5px; color: var(--text); text-transform: uppercase; margin-bottom: 16px;
+}
+.pc-rate {
+  font-family: 'IBM Plex Mono', monospace; font-size: 50px; font-weight: 700;
+  color: var(--gold); line-height: 1;
+}
+.pc-rate sup { font-size: 16px; color: var(--text); vertical-align: super; }
+.pc-rate sub { font-size: 14px; color: var(--text); }
+.pc-estimate {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--copper); margin-top: 10px; letter-spacing: 0.2px;
+}
+.pc-body { padding: 28px 36px; }
+.pc-items { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.pc-item {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-mid);
+  display: flex; align-items: baseline; gap: 12px;
+}
+.pc-item::before { content: '+'; color: var(--gold); opacity: 0.7; flex-shrink: 0; }
+.pc-note {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+  border-top: 1px solid var(--border-dim); padding-top: 20px; line-height: 1.8;
+}
+
+.pricing-right { padding-top: 8px; }
+.pricing-right-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 700;
+  color: var(--text-bright); letter-spacing: 0.5px; margin-bottom: 20px; line-height: 1.25;
+}
+.pricing-right-title em { font-style: normal; color: var(--gold); }
+.pricing-right-body {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 15px;
+  color: var(--text-mid); line-height: 1.85; margin-bottom: 32px;
+}
+.process-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.process-list li {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text);
+  display: flex; align-items: baseline; gap: 12px; line-height: 1.55;
+}
+.process-list li span.step-label {
+  font-size: 8px; letter-spacing: 2px; color: var(--gold); opacity: 0.75;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 2px; padding: 2px 7px; white-space: nowrap; flex-shrink: 0;
+}
+
+/* ─── CONTACT FORM ──────────────────────────────────────────────── */
+.section-contact { background: var(--bg2); border-top: 1px solid var(--border-dim); }
+
+.form-layout { display: grid; grid-template-columns: 1fr 1.3fr; gap: 80px; align-items: start; }
+
+.form-aside-ascii {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: rgba(255,212,0,0.2); line-height: 1.25; margin-bottom: 28px;
+  white-space: pre; user-select: none;
+}
+.form-aside-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 700;
+  color: var(--text-bright); margin-bottom: 16px; line-height: 1.2;
+}
+.form-aside-title em { font-style: normal; color: var(--gold); }
+.form-aside-body {
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px;
+  color: var(--text); line-height: 1.85; margin-bottom: 32px;
+}
+.form-meta { display: flex; flex-direction: column; gap: 10px; }
+.form-meta-item {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text);
+  display: flex; align-items: center; gap: 12px;
+}
+.form-meta-item::before { content: '>'; color: var(--gold); opacity: 0.65; }
+
+.audit-form {
+  display: flex; flex-direction: column; gap: 18px;
+  background: var(--card); border: 1px solid var(--border-dim);
+  border-radius: var(--r); padding: 36px;
+}
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  letter-spacing: 2.5px; color: var(--text); text-transform: uppercase;
+}
+.form-input, .form-select, .form-textarea {
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--text-bright);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border-dim);
+  border-radius: var(--r-sm); padding: 12px 14px; width: 100%; outline: none;
+  transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
+}
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23FFD400' opacity='0.45'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center;
+  background-color: rgba(255,255,255,0.03); padding-right: 36px;
+}
+.form-select option { background: #090c14; }
+.form-textarea { resize: vertical; min-height: 86px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: rgba(255,212,0,0.38); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-submit {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+  letter-spacing: 2.5px; text-transform: uppercase; padding: 15px;
+  background: var(--gold); color: #090c14; border: none; border-radius: var(--r-sm);
+  cursor: none; width: 100%; transition: opacity 0.2s; margin-top: 4px;
+}
+.form-submit:hover { opacity: 0.88; }
+
+/* ─── FOOTER ────────────────────────────────────────────────────── */
+footer {
+  position: relative; z-index: 1; background: var(--card);
+  border-top: 1px solid var(--border-dim); padding: 72px 56px 48px;
+  display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 48px; align-items: start;
+}
+.footer-ascii {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: rgba(255,212,0,0.17); line-height: 1.25; margin-bottom: 18px;
+  white-space: pre; user-select: none;
+}
+.footer-brand {
+  font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 700;
+  color: var(--gold); letter-spacing: 5px; margin-bottom: 12px;
+}
+.footer-tagline {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  color: var(--text); line-height: 1.75;
+}
+.footer-col-title {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text);
+  letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 18px;
+}
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--gold); }
+.footer-mail {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--gold);
+  text-decoration: none; display: block; margin-top: 6px; opacity: 0.8; transition: opacity 0.2s;
+}
+.footer-mail:hover { opacity: 1; }
+.footer-bottom {
+  position: relative; z-index: 1; border-top: 1px solid var(--border-dim);
+  padding: 20px 56px; display: flex; justify-content: space-between; align-items: center;
+}
+.footer-copy { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--text); opacity: 0.5; }
+.footer-sig  { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--chartreuse); letter-spacing: 2px; opacity: 0.7; }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  section { padding: 80px 24px; }
+  .hero { padding: 110px 24px 80px; }
+  .audit-banner { margin: 0 24px; }
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .intro-grid, .what-intro, .why-header-grid, .report-layout, .pricing-layout, .form-layout { grid-template-columns: 1fr; gap: 40px; }
+  .services-grid { grid-template-columns: 1fr; gap: 12px; }
+  .why-grid { grid-template-columns: 1fr 1fr; }
+  .process-steps { grid-template-columns: 1fr 1fr; }
+  .hero-stats { max-width: 100%; }
+  footer { grid-template-columns: 1fr; padding: 48px 24px 32px; }
+  .footer-bottom { padding: 16px 24px; flex-direction: column; gap: 8px; }
+}
+@media (max-width: 600px) {
+  .why-grid { grid-template-columns: 1fr; }
+  .process-steps { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; }
+  .hero-stat { border-right: none; border-bottom: 1px solid var(--border-dim); }
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="index.html" class="nav-logo">CNRCO</a>
+<!-- CURSOR -->
+<div id="cursor-glow"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="index.html" class="nav-logo" data-cursor="link">CNRCO</a>
   <ul class="nav-links">
-    <li><a href="#problem">Problem</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#report">Deliverables</a></li>
-    <li><a href="#pricing">Pricing</a></li>
-    <li><a href="audit.html">Audit details</a></li>
-    <li><a href="#contact" class="nav-cta">Request audit</a></li>
+    <li><a href="#problem" data-cursor="link">The problem</a></li>
+    <li><a href="#what" data-cursor="link">Services</a></li>
+    <li><a href="#how" data-cursor="link">Process</a></li>
+    <li><a href="#pricing" data-cursor="link">Pricing</a></li>
+    <li><a href="audit.html" data-cursor="link">Audit details</a></li>
+    <li><a href="#contact" class="nav-cta" data-cursor="btn">Request audit</a></li>
   </ul>
   <button class="hamburger" id="hamburger" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
+<!-- DRAWER -->
 <div class="drawer" id="drawer">
-  <a href="#problem" onclick="closeDrawer()">Problem</a>
-  <a href="#services" onclick="closeDrawer()">Services</a>
-  <a href="#report" onclick="closeDrawer()">Deliverables</a>
+  <a href="#problem" onclick="closeDrawer()">The problem</a>
+  <a href="#what" onclick="closeDrawer()">Services</a>
+  <a href="#how" onclick="closeDrawer()">Process</a>
+  <a href="#why" onclick="closeDrawer()">Why CNRCO</a>
   <a href="#pricing" onclick="closeDrawer()">Pricing</a>
   <a href="audit.html" class="drawer-audit" onclick="closeDrawer()"><span class="drawer-badge">AUDIT</span>Full methodology</a>
   <a href="#contact" onclick="closeDrawer()">Request audit</a>
 </div>
 
-<section class="hero">
-  <p class="hero-tag">Professional vulnerability assessment and GRC reporting</p>
-  <h1 class="hero-headline">Security requires<br><em>judgment.</em><br>Not just output.</h1>
-  <p class="hero-sub">
-    Automated scanners find known patterns.<br>
-    CNRCO finds the gaps that matter —<br>and signs off on them by name.
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HERO                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="hero" data-zone="hero" id="hero">
+  <p class="hero-kicker reveal">Professional security audit &amp; GRC reporting</p>
+  <h1 class="hero-headline reveal reveal-delay-1">
+    Your site is probably<br><em>open right now.</em>
+    <span class="line2">You just haven't found out yet.</span>
+  </h1>
+  <p class="hero-body reveal reveal-delay-2">
+    Most small businesses have <strong>never had a security audit.</strong> Not because they're safe —
+    because they assumed they weren't a target. That assumption is the vulnerability.
+    CNRCO finds what's actually exposed, tells you exactly how bad it is,
+    and hands you a prioritized plan to fix it.
   </p>
-  <div class="hero-actions">
-    <a href="#contact" class="btn-primary">Request an audit</a>
-    <a href="#pricing" class="btn-secondary">Get a quote</a>
+  <div class="hero-actions reveal reveal-delay-3">
+    <a href="#contact" class="btn-primary" data-cursor="btn">Request an audit</a>
+    <a href="#what" class="btn-secondary" data-cursor="link">See what we test</a>
   </div>
-  <div class="stat-bar">
-    <div class="stat-item">
-      <div class="stat-num">43%</div>
-      <div class="stat-label">Attacks target<br>small business</div>
+  <div class="hero-stats reveal reveal-delay-4">
+    <div class="hero-stat">
+      <div class="stat-n">43%</div>
+      <div class="stat-l">Attacks target<br>small business</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">72h</div>
-      <div class="stat-label">GDPR breach<br>notification window</div>
+    <div class="hero-stat">
+      <div class="stat-n">72h</div>
+      <div class="stat-l">GDPR breach<br>notification limit</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num">CVSS</div>
-      <div class="stat-label">v3.1 scoring<br>standard</div>
+    <div class="hero-stat">
+      <div class="stat-n">€20M</div>
+      <div class="stat-l">Max GDPR fine<br>for violations</div>
     </div>
   </div>
 </section>
 
-<div class="audit-banner">
-  <div class="audit-banner-left">
-    <span class="audit-banner-icon">DOC</span>
-    <p class="audit-banner-text">Full phase-by-phase methodology, test categories, compliance mapping, and report structure available separately.</p>
+<!-- AUDIT BANNER -->
+<div class="audit-banner reveal" data-zone="hero">
+  <div class="banner-left">
+    <span class="banner-tag">METHODOLOGY</span>
+    <p class="banner-text">Want the full technical breakdown — phases, test categories, compliance mapping, report format?</p>
   </div>
-  <a href="audit.html" class="audit-banner-link">View audit details &rsaquo;</a>
+  <a href="audit.html" class="banner-link" data-cursor="link">View audit details &rsaquo;</a>
 </div>
 
-<section class="problem" id="problem">
-  <p class="section-eyebrow" data-n="01 //">The problem</p>
-  <div class="problem-grid">
-    <div class="problem-text">
-      <p>Most small businesses have never had a security audit. Not because they are secure — because they assume they are not targets. That assumption <strong>is the vulnerability</strong>.</p>
-      <p>Automated tools match patterns against known signatures. They cannot evaluate whether your authentication flow is logically broken, whether error messages leak stack traces, or whether an attacker can reach admin functions through a regular user account.</p>
-      <p>A real audit requires someone who understands the application in context. Not a scanner running templates. A person who can reason about what your specific setup actually exposes.</p>
-      <p>CNRCO combines automated scanning with manual testing, maps findings to real compliance requirements, and provides a named auditor who stands behind the work.</p>
-    </div>
-    <div class="threat-stack">
-      <div class="threat-card">
-        <p class="threat-label">// SME exposure</p>
-        <p class="threat-stat">43%</p>
-        <p class="threat-desc">of cyberattacks target small and medium businesses.<br>Most start with basic vulnerabilities — missing SSL,<br>default credentials, unpatched software, misconfigured DNS.</p>
-      </div>
-      <div class="threat-card">
-        <p class="threat-label">// GDPR exposure</p>
-        <p class="threat-stat">4%</p>
-        <p class="threat-desc">Maximum GDPR fine: 4% of global annual turnover.<br>Organizations handling EU user data must demonstrate<br>appropriate technical security measures.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="services">
-  <p class="section-eyebrow" data-n="02 //">What gets tested</p>
-  <h2 class="section-title">Three-phase <em>assessment</em> process</h2>
-  <p class="section-desc">Each engagement follows a structured methodology: reconnaissance, automated and manual vulnerability testing, risk scoring, and compliance mapping. Scope is agreed in writing before work begins.</p>
-  <div class="phases-grid">
-    <div class="phase-card">
-      <p class="phase-num"><em>PHASE 01</em> &mdash; Reconnaissance</p>
-      <h3 class="phase-title">Information Gathering</h3>
-      <ul class="phase-items">
-        <li>WHOIS and DNS enumeration</li>
-        <li>SSL/TLS certificate inspection</li>
-        <li>HTTP headers and stack fingerprinting</li>
-        <li>Subdomain enumeration</li>
-        <li>SPF, DKIM, DMARC configuration</li>
-        <li>Open port and service discovery</li>
-      </ul>
-    </div>
-    <div class="phase-card">
-      <p class="phase-num"><em>PHASE 02</em> &mdash; Assessment</p>
-      <h3 class="phase-title">Vulnerability Testing</h3>
-      <ul class="phase-items">
-        <li>OWASP Top 10 — automated and manual</li>
-        <li>SQL injection — manual payloads</li>
-        <li>XSS — stored, reflected, DOM-based</li>
-        <li>Broken access control and IDOR</li>
-        <li>Authentication and session review</li>
-        <li>API endpoint discovery and testing</li>
-        <li>Dependency CVE scanning</li>
-        <li>Secrets in code and .git history</li>
-      </ul>
-    </div>
-    <div class="phase-card">
-      <p class="phase-num"><em>PHASE 03</em> &mdash; Risk scoring</p>
-      <h3 class="phase-title">Prioritization and Mapping</h3>
-      <ul class="phase-items">
-        <li>CVSS v3.1 — base, temporal, environmental</li>
-        <li>Business impact ranking</li>
-        <li>OWASP Top 10 compliance status</li>
-        <li>GDPR readiness assessment</li>
-        <li>PCI-DSS applicability review</li>
-        <li>ISO 27001 gap analysis</li>
-      </ul>
-    </div>
-  </div>
-  <div class="phases-more"><a href="audit.html">Full methodology breakdown &rsaquo;</a></div>
-</section>
-
-<section class="report-section" id="report">
-  <p class="section-eyebrow" data-n="03 //">Deliverables</p>
-  <h2 class="section-title">What the <em>report</em> contains</h2>
-  <p class="section-desc">Every finding is documented with exact location, CVSS score, proof of concept, and remediation steps. Structured for regulators, insurers, and your development team.</p>
-  <div class="report-grid">
-    <div>
-      <div class="report-card">
-        <div class="report-card-header"><span class="report-card-title">Sample finding</span><span class="report-card-badge">FORMAT PREVIEW</span></div>
-        <div class="report-card-body">
-          <div class="report-row"><span class="report-row-label">Vulnerability</span><span class="report-row-val">SQL Injection — login endpoint</span></div>
-          <div class="report-row"><span class="report-row-label">Location</span><span class="report-row-val">/api/auth/login — email param</span></div>
-          <div class="report-row"><span class="report-row-label">CVSS score</span><span class="report-row-val c-crit">9.8 / Critical</span></div>
-          <div class="report-row"><span class="report-row-label">Business impact</span><span class="report-row-val c-crit">Full database exposure</span></div>
-          <div class="report-row"><span class="report-row-label">OWASP category</span><span class="report-row-val">A03:2021 — Injection</span></div>
-          <div class="report-row"><span class="report-row-label">GDPR relevance</span><span class="report-row-val c-high">Art. 32 — Technical measures</span></div>
-          <div class="report-row"><span class="report-row-label">Remediation</span><span class="report-row-val c-low">Parameterized queries, input sanitization</span></div>
-          <div class="report-row"><span class="report-row-label">Effort estimate</span><span class="report-row-val c-med">2–4 hours</span></div>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- THE PROBLEM                                                    -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-problem" data-zone="problem" id="problem">
+  <div class="section-inner">
+    <div class="intro-grid">
+      <div>
+        <p class="eyebrow reveal" data-n="01 //">The uncomfortable truth</p>
+        <h2 class="section-title reveal reveal-delay-1">You wouldn't know<br>if you'd been <em>breached.</em></h2>
+        <div class="intro-body reveal reveal-delay-2">
+          <p>The average breach goes undetected for <strong>207 days.</strong> By the time anyone notices, the damage is done — customer data gone, trust destroyed, regulators circling.</p>
+          <p>Security isn't something you bolt on after launch. But that's exactly what most businesses do. They build fast, they ship, and they tell themselves <em>"we'll deal with security later."</em> Later usually means after the incident.</p>
+          <p>CNRCO exists for the businesses who decide to act before that happens. Before the call from a customer saying their data was posted online. Before the GDPR fine. Before the news article with your company name in it.</p>
         </div>
       </div>
-      <div class="report-card">
-        <div class="report-card-header"><span class="report-card-title">OWASP Top 10 — 2021</span><span class="report-card-badge">COMPLIANCE MAP</span></div>
-        <div class="report-card-body">
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A01 Broken Access Control</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A02 Cryptographic Failures</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A03 Injection</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A04 Insecure Design</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:90%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A05 Security Misconfiguration</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A06 Vulnerable Components</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A07 Auth Failures</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A08 Integrity Failures</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:85%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A09 Logging Failures</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:100%"></div></div></div>
-          <div class="cvss-bar-wrap"><div class="cvss-label-row"><span>A10 SSRF</span><span style="color:var(--gold);opacity:0.6;">TESTED</span></div><div class="cvss-bar"><div class="cvss-fill" style="width:90%"></div></div></div>
+      <div class="threat-stack">
+        <div class="threat-card reveal reveal-right reveal-delay-1">
+          <p class="threat-label">// attack surface — SME</p>
+          <p class="threat-num">43%</p>
+          <p class="threat-desc">of all cyberattacks target small and medium businesses. Not big banks. Not Fortune 500. <em>Businesses like yours.</em> Because they're easier. Default credentials. Unpatched software. No one watching.</p>
         </div>
-      </div>
-    </div>
-    <div>
-      <div class="report-card">
-        <div class="report-card-header"><span class="report-card-title">Remediation roadmap</span><span class="report-card-badge">TIMELINE</span></div>
-        <div class="report-card-body">
-          <div class="report-row"><span class="report-row-label" style="color:#c95555;">Immediate / 1-2w</span><span class="report-row-val">Critical vulnerabilities — fix before next sprint</span></div>
-          <div class="report-row"><span class="report-row-label" style="color:#c46e3d;">Short-term / 1mo</span><span class="report-row-val">High-severity, moderate remediation effort</span></div>
-          <div class="report-row"><span class="report-row-label" style="color:var(--gold);opacity:0.85;">Medium / 1-3mo</span><span class="report-row-val">Architectural changes, medium severity</span></div>
-          <div class="report-row"><span class="report-row-label" style="color:#6ea870;">Long-term / ongo.</span><span class="report-row-val">Process improvements, monitoring setup</span></div>
-        </div>
-      </div>
-      <div class="report-card">
-        <div class="report-card-header"><span class="report-card-title">Compliance coverage</span><span class="report-card-badge">STANDARDS</span></div>
-        <div class="report-card-body">
-          <div class="report-row"><span class="report-row-label">OWASP Top 10</span><span class="report-row-val c-low">Full 2021 edition</span></div>
-          <div class="report-row"><span class="report-row-label">GDPR</span><span class="report-row-val c-low">Art. 25, 32 — data protection</span></div>
-          <div class="report-row"><span class="report-row-label">PCI-DSS</span><span class="report-row-val c-med">If payment processing</span></div>
-          <div class="report-row"><span class="report-row-label">ISO 27001</span><span class="report-row-val c-med">Gap analysis available</span></div>
-          <div class="report-row"><span class="report-row-label">Auditor sign-off</span><span class="report-row-val c-low">Named accountability</span></div>
-        </div>
-      </div>
-      <div class="report-card">
-        <div class="report-card-header"><span class="report-card-title">Executive summary</span><span class="report-card-badge">INCLUDED</span></div>
-        <div class="report-card-body">
-          <div class="report-row"><span class="report-row-label">Security posture</span><span class="report-row-val">Overall rating — strong / moderate / weak</span></div>
-          <div class="report-row"><span class="report-row-label">Critical findings</span><span class="report-row-val">Written for non-technical stakeholders</span></div>
-          <div class="report-row"><span class="report-row-label">Compliance status</span><span class="report-row-val">Per applicable standard</span></div>
-          <div class="report-row"><span class="report-row-label">Suitable for</span><span class="report-row-val">Regulators, insurers, enterprise clients</span></div>
+        <div class="threat-card reveal reveal-right reveal-delay-2">
+          <p class="threat-label">// regulatory exposure — EU</p>
+          <p class="threat-num">€20M</p>
+          <p class="threat-desc">or 4% of global annual turnover — whichever is higher. That's the ceiling on GDPR fines for organizations that fail to implement "appropriate technical security measures." A signed audit report demonstrates that you did.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section id="why">
-  <p class="section-eyebrow" data-n="04 //">Accountability gap</p>
-  <h2 class="section-title">Why automated tools are <em>not enough</em></h2>
-  <p class="section-desc">Scanners and AI-generated reports handle initial triage. They are not a substitute for professional accountability — and regulators know the difference.</p>
-  <div class="why-grid">
-    <div class="why-card">
-      <p class="why-label">Accountability</p>
-      <h3 class="why-title">No one to hold responsible</h3>
-      <p class="why-text">If an automated tool misses a critical vulnerability, there is no professional liability. CNRCO audits are signed by a named auditor. If something is in scope and was missed, that accountability exists.</p>
-    </div>
-    <div class="why-card">
-      <p class="why-label">Context</p>
-      <h3 class="why-title">Pattern matching vs. real assessment</h3>
-      <p class="why-text">Scanners match signatures. They do not understand whether your password reset flow is logically broken, whether access controls are enforced server-side, or whether your authentication design makes sense for your risk profile.</p>
-    </div>
-    <div class="why-card">
-      <p class="why-label">Threat awareness</p>
-      <h3 class="why-title">Historical data vs. current attack patterns</h3>
-      <p class="why-text">AI is trained on historical data. A human auditor understands current exploitation techniques, active CVEs being used in the wild, and how attackers chain vulnerabilities — not just what was documented at training cutoff.</p>
-    </div>
-    <div class="why-card">
-      <p class="why-label">Compliance proof</p>
-      <h3 class="why-title">AI output is not auditable</h3>
-      <p class="why-text">GDPR Article 32 requires demonstrating appropriate technical measures. A regulatory body or insurer will not accept an AI-generated output as evidence of a professional security review. A signed audit report is.</p>
-    </div>
-    <div class="why-card">
-      <p class="why-label">Remediation</p>
-      <h3 class="why-title">A list vs. a prioritized plan</h3>
-      <p class="why-text">Automated tools produce lists. A CNRCO audit produces a prioritized remediation roadmap with effort estimates, code-level guidance, and timelines — so your team knows what to fix first and how.</p>
-    </div>
-    <div class="why-card">
-      <p class="why-label">Business risk</p>
-      <h3 class="why-title">CVSS score vs. your actual exposure</h3>
-      <p class="why-text">A CVSS 7.5 vulnerability may be low-risk in your environment, or critical given your specific data handling. Business impact ranking requires understanding your operations, not just the technical severity metric.</p>
-    </div>
-  </div>
-</section>
-
-<section class="pricing-section" id="pricing">
-  <p class="section-eyebrow" data-n="05 //">Pricing</p>
-  <h2 class="section-title" style="margin-bottom:36px;">Transparent <em>engagement</em> model</h2>
-  <div class="pricing-card">
-    <div class="pricing-header">
-      <p class="pricing-tag">Standard rate &mdash; professional security audit</p>
-      <div class="pricing-rate"><sup>EUR </sup>150<sub>/hr</sub></div>
-      <p class="pricing-estimate">Typical engagement: 20–40 hours &mdash; EUR 3,000 to EUR 6,000</p>
-    </div>
-    <div class="pricing-body">
-      <div class="pricing-includes">
-        <div class="pricing-item">Full reconnaissance and vulnerability assessment</div>
-        <div class="pricing-item">OWASP Top 10 — automated and manual testing</div>
-        <div class="pricing-item">CVSS v3.1 scoring and business impact ranking</div>
-        <div class="pricing-item">GRC compliance mapping — GDPR, PCI-DSS, ISO 27001</div>
-        <div class="pricing-item">Remediation roadmap with per-item effort estimates</div>
-        <div class="pricing-item">Professional audit report suitable for regulators and insurers</div>
-        <div class="pricing-item">Named auditor sign-off and accountability</div>
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- WHAT WE DO                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-what" data-zone="what" id="what">
+  <div class="section-inner">
+    <div class="what-intro">
+      <div>
+        <p class="eyebrow reveal" data-n="02 //">The service</p>
+        <h2 class="section-title reveal reveal-delay-1">We look for everything<br>an attacker <em>would.</em></h2>
       </div>
-      <p class="pricing-note">Scoping call is free. After discovery, you receive a written scope document, time estimate, and cost estimate based on application complexity. Work begins only after scope and price are approved.</p>
+      <div class="what-intro-right reveal reveal-right">
+        A security audit isn't a scan you run and forget. It's a methodical investigation of how your system behaves under pressure — what it reveals, what it allows, and what it hides. CNRCO runs the same techniques a real attacker would use, documents every finding with proof, and tells you what to fix first.
+      </div>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card reveal reveal-delay-1">
+        <p class="service-num">PHASE 01 // RECON</p>
+        <h3 class="service-title">We map everything you've exposed before writing a single line of test code.</h3>
+        <p class="service-body">Before touching your application, we build a full picture of your external attack surface. DNS, subdomains, SSL configuration, email security, open ports, server fingerprints — the kind of reconnaissance a serious attacker would run on day one.</p>
+        <ul class="service-list">
+          <li>DNS &amp; subdomain enumeration</li>
+          <li>SSL/TLS cipher and certificate review</li>
+          <li>HTTP headers, stack fingerprinting</li>
+          <li>SPF, DKIM, DMARC configuration</li>
+          <li>Open port and service discovery</li>
+        </ul>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <p class="service-num">PHASE 02 // TESTING</p>
+        <h3 class="service-title">Automated scans plus manual testing that scanners will never catch.</h3>
+        <p class="service-body">Tools find the obvious. We find the rest. OWASP Top 10 coverage is table stakes — we go further with manual logic testing: authentication bypass attempts, broken access control, insecure API endpoints, secrets buried in your .git history, and more.</p>
+        <ul class="service-list">
+          <li>SQL injection — manual payloads, not just templates</li>
+          <li>XSS — stored, reflected, DOM-based</li>
+          <li>Broken access control &amp; IDOR</li>
+          <li>API security &amp; rate limiting</li>
+          <li>Hardcoded secrets, exposed .env files</li>
+        </ul>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <p class="service-num">PHASE 03 // REPORT</p>
+        <h3 class="service-title">Every finding scored, prioritized, and explained in plain language.</h3>
+        <p class="service-body">You don't just get a list of vulnerabilities. You get a CVSS v3.1 scored report with business impact context, proof of concept for every finding, a compliance checklist (GDPR, OWASP, PCI-DSS), and a prioritized remediation roadmap with effort estimates your dev team can actually use.</p>
+        <ul class="service-list">
+          <li>CVSS v3.1 scoring per finding</li>
+          <li>Proof of concept — how we found it</li>
+          <li>GDPR, PCI-DSS, ISO 27001 mapping</li>
+          <li>Remediation steps with code examples</li>
+          <li>Named auditor sign-off</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="form-section" id="contact">
-  <p class="section-eyebrow" data-n="06 //">Request an audit</p>
-  <div class="form-wrap">
-    <div class="form-aside">
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-how" data-zone="how" id="how">
+  <div class="section-inner">
+    <p class="eyebrow reveal" data-n="03 //">Engagement process</p>
+    <h2 class="section-title reveal reveal-delay-1">Simple from your side.<br><em>Thorough</em> from ours.</h2>
+    <p class="section-lead reveal reveal-delay-2">No jargon, no guesswork, no surprise invoices. You know the scope, the price, and the timeline before we touch anything.</p>
+
+    <div class="process-steps reveal reveal-delay-3">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <h4 class="step-title">Free scoping call</h4>
+        <p class="step-body">We discuss what you're building, what data it handles, and what you're worried about. No obligation. Takes about 30 minutes.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <h4 class="step-title">Written scope &amp; estimate</h4>
+        <p class="step-body">You receive a written document: exactly what will be tested, what won't, how long it'll take, and what it will cost. You approve before we start.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <h4 class="step-title">Audit &amp; testing</h4>
+        <p class="step-body">We run the full three-phase assessment on the agreed scope. You don't need to be involved — we handle the technical work.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <h4 class="step-title">Report &amp; walkthrough</h4>
+        <p class="step-body">You receive the full audit report. We walk you through the findings, answer questions, and make sure your team knows how to act on it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- WHY CNRCO                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-why" data-zone="why" id="why">
+  <div class="section-inner">
+    <div class="why-header-grid">
+      <div>
+        <p class="eyebrow reveal" data-n="04 //">Why this matters</p>
+        <h2 class="section-title reveal reveal-delay-1">Tools scan.<br>Professionals <em>think.</em></h2>
+        <p class="section-lead reveal reveal-delay-2" style="margin-bottom:0;">There's a real difference between an automated report and an audit. Here's what that difference means for your business.</p>
+      </div>
+      <p class="why-pull reveal reveal-right">
+        "A scanner found 12 issues on our site. The auditor found 3 that mattered — including one the scanner completely missed. That one was the critical one."
+      </p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card reveal reveal-delay-1">
+        <p class="why-icon">Accountability</p>
+        <h3 class="why-title">Someone signs their name to it</h3>
+        <p class="why-body">Automated tools have no liability. If they miss something, no one is responsible. A CNRCO audit is signed by a named auditor. That accountability is part of what you're paying for — and part of what makes the report credible to regulators and insurers.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <p class="why-icon">Context</p>
+        <h3 class="why-title">Judgment, not just pattern matching</h3>
+        <p class="why-body">A scanner checks if SQL injection templates match. It cannot tell you whether your authentication flow is logically broken, whether your access controls are actually enforced server-side, or whether an insider threat would find a gap in your permission model.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-3">
+        <p class="why-icon">Compliance proof</p>
+        <h3 class="why-title">Regulators don't accept AI output</h3>
+        <p class="why-body">GDPR Article 32 requires demonstrating "appropriate technical measures." A regulatory body or insurer will not accept an AI-generated checklist as evidence. A signed professional audit report — with named auditor, scope document, and CVSS evidence — will.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-1">
+        <p class="why-icon">Current threats</p>
+        <h3 class="why-title">Trained on now, not last year</h3>
+        <p class="why-body">AI tools are trained on historical data. They know what was dangerous at training cutoff. A human auditor tracks active CVEs, current exploit chains, and how attackers are actually operating this week — because that's what's coming for your system.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-2">
+        <p class="why-icon">Remediation</p>
+        <h3 class="why-title">A plan, not a dump</h3>
+        <p class="why-body">Automated tools produce lists. Long, unsorted, context-free lists that overwhelm dev teams and get archived. CNRCO produces a prioritized roadmap with effort estimates, per-item timelines, and code-level remediation steps your team can execute immediately.</p>
+      </div>
+      <div class="why-card reveal reveal-delay-3">
+        <p class="why-icon">Business impact</p>
+        <h3 class="why-title">Your risk, not a generic score</h3>
+        <p class="why-body">CVSS 7.5 might be critical for a payment processor and trivial for a blog. Business impact ranking translates technical severity into the language of your operations — what would actually happen to your customers, your revenue, and your reputation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- WHAT'S IN THE REPORT                                           -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-report" data-zone="what" id="report">
+  <div class="section-inner">
+    <p class="eyebrow reveal" data-n="05 //">Deliverables</p>
+    <h2 class="section-title reveal reveal-delay-1">The report your team<br>and your <em>regulator</em> can both use.</h2>
+    <p class="section-lead reveal reveal-delay-2">One document covers your dev team's fix list, your executive's risk summary, and your regulator's compliance evidence. Built for all three audiences.</p>
+
+    <div class="report-layout">
+      <div>
+        <div class="report-card reveal reveal-delay-1">
+          <div class="rc-head"><span class="rc-title">Sample finding</span><span class="rc-badge">FORMAT PREVIEW</span></div>
+          <div class="rc-body">
+            <div class="rc-row"><span class="rc-k">Vulnerability</span><span class="rc-v">SQL Injection — login endpoint</span></div>
+            <div class="rc-row"><span class="rc-k">Location</span><span class="rc-v">/api/auth/login — email param</span></div>
+            <div class="rc-row"><span class="rc-k">CVSS score</span><span class="rc-v c-crit">9.8 / Critical</span></div>
+            <div class="rc-row"><span class="rc-k">Business impact</span><span class="rc-v c-crit">Full database exposure</span></div>
+            <div class="rc-row"><span class="rc-k">OWASP</span><span class="rc-v">A03:2021 — Injection</span></div>
+            <div class="rc-row"><span class="rc-k">GDPR</span><span class="rc-v c-high">Art. 32 — Technical measures</span></div>
+            <div class="rc-row"><span class="rc-k">Fix</span><span class="rc-v c-low">Parameterized queries, input sanitization</span></div>
+            <div class="rc-row"><span class="rc-k">Effort</span><span class="rc-v c-med">2–4 hours</span></div>
+          </div>
+        </div>
+        <div class="report-card reveal reveal-delay-2">
+          <div class="rc-head"><span class="rc-title">Remediation roadmap</span><span class="rc-badge">TIMELINE</span></div>
+          <div class="rc-body">
+            <div class="rc-row"><span class="rc-k" style="color:#c95555;">Immediate / 1-2w</span><span class="rc-v">Critical findings — fix before next deploy</span></div>
+            <div class="rc-row"><span class="rc-k" style="color:#c0663a;">Short-term / 1mo</span><span class="rc-v">High severity, moderate effort</span></div>
+            <div class="rc-row"><span class="rc-k" style="color:var(--gold);opacity:.85">Medium / 1-3mo</span><span class="rc-v">Architectural changes</span></div>
+            <div class="rc-row"><span class="rc-k" style="color:#6da870;">Long-term</span><span class="rc-v">Process improvements, monitoring</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="report-card reveal reveal-delay-1">
+          <div class="rc-head"><span class="rc-title">OWASP Top 10 — 2021</span><span class="rc-badge">COMPLIANCE MAP</span></div>
+          <div class="rc-body">
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A01 Broken Access Control</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A02 Cryptographic Failures</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A03 Injection</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A04 Insecure Design</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:90%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A05 Security Misconfiguration</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A06 Vulnerable Components</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A07 Auth Failures</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A08 Integrity Failures</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:85%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A09 Logging Failures</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:100%"></div></div></div>
+            <div class="owasp-bar-wrap"><div class="owasp-row"><span>A10 SSRF</span><span style="color:var(--gold);opacity:.6">TESTED</span></div><div class="owasp-track"><div class="owasp-fill" style="width:90%"></div></div></div>
+          </div>
+        </div>
+        <div class="report-card reveal reveal-delay-2">
+          <div class="rc-head"><span class="rc-title">Compliance coverage</span><span class="rc-badge">STANDARDS</span></div>
+          <div class="rc-body">
+            <div class="rc-row"><span class="rc-k">OWASP Top 10</span><span class="rc-v c-low">Full 2021 — all 10 categories</span></div>
+            <div class="rc-row"><span class="rc-k">GDPR</span><span class="rc-v c-low">Art. 25 &amp; 32 — data protection</span></div>
+            <div class="rc-row"><span class="rc-k">PCI-DSS</span><span class="rc-v c-med">If payment processing applies</span></div>
+            <div class="rc-row"><span class="rc-k">ISO 27001</span><span class="rc-v c-med">Gap analysis available</span></div>
+            <div class="rc-row"><span class="rc-k">Sign-off</span><span class="rc-v c-low">Named auditor, dated, scoped</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PRICING                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-pricing" data-zone="pricing" id="pricing">
+  <div class="section-inner">
+    <p class="eyebrow reveal" data-n="06 //">Pricing</p>
+
+    <div class="pricing-layout">
+      <div class="pricing-card reveal reveal-delay-1">
+        <div class="pc-head">
+          <p class="pc-tag">Standard rate — professional security audit</p>
+          <div class="pc-rate"><sup>EUR </sup>150<sub>/hr</sub></div>
+          <p class="pc-estimate">Typical engagement: 20–40 hours &mdash; EUR 3,000 to EUR 6,000</p>
+        </div>
+        <div class="pc-body">
+          <div class="pc-items">
+            <div class="pc-item">Full reconnaissance — DNS, SSL, headers, subdomains</div>
+            <div class="pc-item">OWASP Top 10 — automated &amp; manual testing</div>
+            <div class="pc-item">CVSS v3.1 scoring, business impact ranking</div>
+            <div class="pc-item">GRC compliance — GDPR, PCI-DSS, ISO 27001</div>
+            <div class="pc-item">Remediation roadmap with per-item effort estimates</div>
+            <div class="pc-item">Professional report — regulator and insurer ready</div>
+            <div class="pc-item">Named auditor sign-off and accountability</div>
+          </div>
+          <p class="pc-note">Scoping call is free. After discovery, you receive a written scope and cost estimate. Work begins only after both are approved in writing.</p>
+        </div>
+      </div>
+
+      <div class="pricing-right">
+        <h3 class="pricing-right-title reveal reveal-right">No surprises.<br><em>No ambiguity.</em></h3>
+        <p class="pricing-right-body reveal reveal-right reveal-delay-1">Security audits have a reputation for arriving as an unreadable PDF, full of technical jargon and vague severity ratings. That's not what you get here. Every engagement is scoped in plain language, priced upfront, and delivered in a format your team can actually act on.</p>
+        <ul class="process-list reveal reveal-delay-2">
+          <li><span class="step-label">STEP 01</span> Free scoping call — 30 minutes, no pressure</li>
+          <li><span class="step-label">STEP 02</span> Written scope document and cost estimate</li>
+          <li><span class="step-label">STEP 03</span> You approve — then we start</li>
+          <li><span class="step-label">STEP 04</span> Audit, report, and walkthrough</li>
+          <li><span class="step-label">RESPONSE</span> Reply within 24 hours of your request</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CONTACT                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section-contact" data-zone="contact" id="contact">
+  <div class="section-inner">
+    <div class="form-layout">
+      <div class="form-aside">
 <pre class="form-aside-ascii"> .-----------.
  |  CNRCO    |
  |  AUDIT    |
  |  REQUEST  |
  |  >_ send  |
  '-----------'</pre>
-      <h2 class="form-aside-title">Start with a <em>free</em> scoping call</h2>
-      <p class="form-aside-desc">Submit your details below. You will receive a response within 24 hours with a proposed scope and cost estimate. No commitment required at this stage.</p>
-      <div class="form-meta">
-        <div class="form-meta-item">Response within 24 hours</div>
-        <div class="form-meta-item">Free scoping call, no obligation</div>
-        <div class="form-meta-item">Scope document before work begins</div>
-        <div class="form-meta-item">Fixed estimate, no surprise billing</div>
-        <div class="form-meta-item"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="375459455458775842435b58585c1954585a">[email&#160;protected]</a></div>
+        <h2 class="form-aside-title reveal">Start with a <em>free</em> scoping call</h2>
+        <p class="form-aside-body reveal reveal-delay-1">Fill in the form and you'll hear back within 24 hours. No commitment at this stage — just a conversation about your system and what an audit would look like for you.</p>
+        <div class="form-meta reveal reveal-delay-2">
+          <div class="form-meta-item">Response within 24 hours</div>
+          <div class="form-meta-item">Free scoping call — no obligation</div>
+          <div class="form-meta-item">Written scope before anything starts</div>
+          <div class="form-meta-item">Fixed estimate, no surprise billing</div>
+          <div class="form-meta-item">cnrco@outlook.com</div>
+        </div>
       </div>
+      <form class="audit-form reveal reveal-delay-1" onsubmit="return false;">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Full name</label><input class="form-input" type="text" placeholder="Your name"></div>
+          <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" placeholder="your@email.com"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Website URL</label><input class="form-input" type="url" placeholder="https://yoursite.com"></div>
+        <div class="form-group">
+          <label class="form-label">Site type</label>
+          <select class="form-select">
+            <option value="" disabled selected>Select one</option>
+            <option>E-commerce / payment processing</option>
+            <option>SaaS platform</option>
+            <option>Healthcare / legal / HR</option>
+            <option>Content / marketing site</option>
+            <option>Internal tool / dashboard</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data sensitivity</label>
+          <select class="form-select">
+            <option value="" disabled selected>What does your site handle?</option>
+            <option>Payment card data</option>
+            <option>User accounts and personal data</option>
+            <option>Sensitive records (health, legal, HR)</option>
+            <option>No personal data — public content only</option>
+            <option>Not sure</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Compliance requirements</label>
+          <select class="form-select">
+            <option value="" disabled selected>Any specific standards?</option>
+            <option>GDPR</option><option>PCI-DSS</option>
+            <option>ISO 27001</option><option>Multiple / enterprise</option>
+            <option>None / not sure</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Additional context (optional)</label><textarea class="form-textarea" placeholder="Anything specific to test, recent incidents, prior audit history..."></textarea></div>
+        <button class="form-submit" type="submit" data-cursor="btn">Submit audit request</button>
+      </form>
     </div>
-    <form class="audit-form" onsubmit="return false;">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Full name</label><input class="form-input" type="text" placeholder="Your name"></div>
-        <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" placeholder="your@email.com"></div>
-      </div>
-      <div class="form-group"><label class="form-label">Website URL</label><input class="form-input" type="url" placeholder="https://yoursite.com"></div>
-      <div class="form-group">
-        <label class="form-label">Site type</label>
-        <select class="form-select">
-          <option value="" disabled selected>Select one</option>
-          <option>E-commerce / payment processing</option>
-          <option>SaaS platform</option>
-          <option>Healthcare / legal / HR</option>
-          <option>Content / marketing site</option>
-          <option>Internal tool / dashboard</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Data sensitivity</label>
-        <select class="form-select">
-          <option value="" disabled selected>What does your site handle?</option>
-          <option>Payment card data</option>
-          <option>User accounts and personal data</option>
-          <option>Sensitive records (health, legal, HR)</option>
-          <option>No personal data — public content only</option>
-          <option>Not sure</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Compliance requirements</label>
-        <select class="form-select">
-          <option value="" disabled selected>Any specific standards?</option>
-          <option>GDPR</option>
-          <option>PCI-DSS</option>
-          <option>ISO 27001</option>
-          <option>Multiple / enterprise</option>
-          <option>None / not sure</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Additional context (optional)</label><textarea class="form-textarea" placeholder="Anything specific to test, recent incidents, or prior audit history..."></textarea></div>
-      <button class="form-submit" type="submit">Submit audit request</button>
-    </form>
   </div>
 </section>
 
-<footer>
+<!-- FOOTER -->
+<footer data-zone="contact">
   <div>
 <pre class="footer-ascii">+----------+
 | CNRCO    |
@@ -822,23 +1182,25 @@
 | >_ NL    |
 +----------+</pre>
     <p class="footer-brand">CNRCO</p>
-    <p class="footer-tagline">Professional security audit services for small<br>businesses, SaaS platforms, and organizations<br>handling sensitive data. The Hague, NL.</p>
+    <p class="footer-tagline">Professional security audit services for small businesses,<br>SaaS platforms, and organizations handling sensitive data.<br>The Hague, NL.</p>
   </div>
   <div>
     <p class="footer-col-title">Navigation</p>
     <ul class="footer-links">
-      <li><a href="#problem">The problem</a></li>
-      <li><a href="#services">What gets tested</a></li>
-      <li><a href="#report">Deliverables</a></li>
-      <li><a href="#pricing">Pricing</a></li>
-      <li><a href="audit.html">Full audit methodology</a></li>
+      <li><a href="#problem" data-cursor="link">The problem</a></li>
+      <li><a href="#what" data-cursor="link">Services</a></li>
+      <li><a href="#how" data-cursor="link">Process</a></li>
+      <li><a href="#why" data-cursor="link">Why CNRCO</a></li>
+      <li><a href="#report" data-cursor="link">Deliverables</a></li>
+      <li><a href="#pricing" data-cursor="link">Pricing</a></li>
+      <li><a href="audit.html" data-cursor="link">Full methodology</a></li>
     </ul>
   </div>
   <div>
     <p class="footer-col-title">Contact</p>
     <p class="footer-tagline">For audit requests and inquiries:</p>
-    <a href="/cdn-cgi/l/email-protection#e3808d91808ca38c96978f8c8c88cd808c8e" class="footer-mail"><span class="__cf_email__" data-cfemail="b7d4d9c5d4d8f7d8c2c3dbd8d8dc99d4d8da">[email&#160;protected]</span></a>
-    <p class="footer-tagline" style="margin-top:14px;">Response within 24 hours.<br>Free scoping call, no commitment.</p>
+    <a href="mailto:cnrco@outlook.com" class="footer-mail" data-cursor="link">cnrco@outlook.com</a>
+    <p class="footer-tagline" style="margin-top:16px;">Response within 24 hours.<br>Free scoping call, no commitment.</p>
   </div>
 </footer>
 <div class="footer-bottom">
@@ -846,8 +1208,202 @@
   <p class="footer-sig">&gt;_</p>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  const hamburger = document.getElementById('hamburger');
-  const drawer = document.getElementById('drawer');
-  hamburger.addEventListener('click', () => {
-    const o
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script>
+/* ── CURSOR ─────────────────────────────────────────────────────── */
+const dot   = document.getElementById('cursor-dot');
+const ring  = document.getElementById('cursor-ring');
+const glow  = document.getElementById('cursor-glow');
+
+let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+let rx = mx, ry = my, gx = mx, gy = my;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+;(function cursorLoop() {
+  dot.style.left = mx + 'px';
+  dot.style.top  = my + 'px';
+
+  rx = lerp(rx, mx, 0.14);
+  ry = lerp(ry, my, 0.14);
+  ring.style.left = rx + 'px';
+  ring.style.top  = ry + 'px';
+
+  gx = lerp(gx, mx, 0.07);
+  gy = lerp(gy, my, 0.07);
+  glow.style.left = gx + 'px';
+  glow.style.top  = gy + 'px';
+
+  requestAnimationFrame(cursorLoop);
+})();
+
+/* cursor state from data-cursor attributes */
+document.querySelectorAll('[data-cursor]').forEach(el => {
+  const type = el.dataset.cursor;
+  el.addEventListener('mouseenter', () => {
+    document.body.classList.add('cursor-' + type);
+  });
+  el.addEventListener('mouseleave', () => {
+    document.body.classList.remove('cursor-' + type);
+  });
+});
+
+/* text inputs get text cursor */
+document.querySelectorAll('input, textarea, select').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-text'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-text'));
+});
+
+/* all interactive elements get link cursor as fallback */
+document.querySelectorAll('a:not([data-cursor]), button:not([data-cursor])').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-link'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-link'));
+});
+
+/* hide cursor when leaving window */
+document.addEventListener('mouseleave', () => {
+  dot.style.opacity = '0'; ring.style.opacity = '0'; glow.style.opacity = '0';
+});
+document.addEventListener('mouseenter', () => {
+  dot.style.opacity = ''; ring.style.opacity = ''; glow.style.opacity = '';
+});
+
+/* ── SCROLL ZONE DETECTION ──────────────────────────────────────── */
+const sections = document.querySelectorAll('[data-zone]');
+const html = document.documentElement;
+
+/* color palettes per zone */
+const zoneColors = {
+  hero:    { dot: '#FFD400', ring: '#FFD400', glowC: 'rgba(255,212,0,0.55)' },
+  problem: { dot: '#e07070', ring: '#e07070', glowC: 'rgba(200,80,80,0.45)' },
+  what:    { dot: '#FFD400', ring: '#FFD400', glowC: 'rgba(255,212,0,0.45)' },
+  how:     { dot: '#7ab8f0', ring: '#7ab8f0', glowC: 'rgba(100,180,255,0.35)' },
+  why:     { dot: '#90d480', ring: '#90d480', glowC: 'rgba(130,210,100,0.35)' },
+  pricing: { dot: '#FFD400', ring: '#FFD400', glowC: 'rgba(255,212,0,0.6)'  },
+  contact: { dot: '#FFD400', ring: '#FFD400', glowC: 'rgba(255,212,0,0.5)'  },
+};
+
+let currentZone = 'hero';
+
+function applyZone(zone) {
+  if (zone === currentZone) return;
+  currentZone = zone;
+  const c = zoneColors[zone] || zoneColors.hero;
+
+  /* remove all zone classes */
+  html.className = html.className.replace(/zone-\S+/g, '').trim();
+  html.classList.add('zone-' + zone);
+
+  /* update cursor colors via CSS vars on :root */
+  dot.style.background  = c.dot;
+  ring.style.borderColor = c.ring;
+  html.style.setProperty('--cursor-glow', c.glowC);
+}
+
+const zoneObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const zone = entry.target.dataset.zone;
+      if (zone) applyZone(zone);
+    }
+  });
+}, { rootMargin: '-40% 0px -40% 0px' });
+
+sections.forEach(s => zoneObserver.observe(s));
+
+/* also tint the nav border when passing zones */
+const nav = document.getElementById('main-nav');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y > 80) {
+    nav.style.borderBottomColor = currentZone === 'problem'
+      ? 'rgba(200,80,80,0.12)'
+      : currentZone === 'how'
+      ? 'rgba(100,180,255,0.12)'
+      : 'rgba(255,212,0,0.12)';
+  } else {
+    nav.style.borderBottomColor = '';
+  }
+});
+
+/* ── SCROLL REVEAL ──────────────────────────────────────────────── */
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target); /* fire once */
+    }
+  });
+}, { rootMargin: '0px 0px -80px 0px' });
+
+reveals.forEach(el => revealObserver.observe(el));
+
+/* ── HAMBURGER ──────────────────────────────────────────────────── */
+const hamburger = document.getElementById('hamburger');
+const drawer    = document.getElementById('drawer');
+hamburger.addEventListener('click', () => {
+  const open = drawer.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+});
+function closeDrawer() {
+  drawer.classList.remove('open');
+  hamburger.classList.remove('open');
+}
+document.addEventListener('click', e => {
+  if (!hamburger.contains(e.target) && !drawer.contains(e.target)) closeDrawer();
+});
+
+/* ── COUNTER ANIMATION ──────────────────────────────────────────── */
+/* animate stat numbers when hero scrolls into view */
+const statNums = document.querySelectorAll('.stat-n');
+const countObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const target = el.textContent;
+    /* only animate numeric ones */
+    const num = parseFloat(target.replace(/[^0-9.]/g, ''));
+    if (isNaN(num)) return;
+    const prefix = target.match(/^[^0-9]*/)?.[0] || '';
+    const suffix = target.match(/[^0-9.]+$/)?.[0] || '';
+    const decimals = (target.split('.')[1] || '').replace(/[^0-9]/g,'').length;
+    let start = 0;
+    const dur = 1200;
+    const startTime = performance.now();
+    function step(now) {
+      const t = Math.min((now - startTime) / dur, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      const cur = (num * ease).toFixed(decimals);
+      el.textContent = prefix + cur + suffix;
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+    countObserver.unobserve(el);
+  });
+}, { threshold: 0.5 });
+statNums.forEach(el => countObserver.observe(el));
+
+/* ── OWASP BAR ANIMATION ────────────────────────────────────────── */
+const fills = document.querySelectorAll('.owasp-fill');
+const barObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const target = el.style.width;
+    el.style.width = '0%';
+    setTimeout(() => {
+      el.style.transition = 'width 1s cubic-bezier(.22,.68,0,1.1)';
+      el.style.width = target;
+    }, 200 + Math.random() * 300);
+    barObserver.unobserve(el);
+  });
+}, { threshold: 0.3 });
+fills.forEach(el => barObserver.observe(el));
+</script>
+</body>
+</html>
